@@ -12,6 +12,7 @@ namespace Quiz
 {
     public partial class Selector : Form
     {
+
         public Selector()
         {
             InitializeComponent();

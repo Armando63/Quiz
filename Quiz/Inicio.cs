@@ -14,12 +14,16 @@ namespace Quiz
     {
         public Inicio()
         {
+
             InitializeComponent();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Inicio = 
+               Selector select = new Selector();
+                select.Show();
+                 this.Hide();
+
         }
     }
 }

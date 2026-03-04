@@ -8,3 +8,4 @@ C:\Users\raulb\source\repos\Quiz\Quiz\obj\Debug\Quiz.csproj.CoreCompileInputs.ca
 C:\Users\raulb\source\repos\Quiz\Quiz\obj\Debug\Quiz.exe
 C:\Users\raulb\source\repos\Quiz\Quiz\obj\Debug\Quiz.pdb
 C:\Users\raulb\source\repos\Quiz\Quiz\obj\Debug\Quiz.Inicio.resources
+C:\Users\raulb\source\repos\Quiz\Quiz\obj\Debug\Quiz.Selector.resources
