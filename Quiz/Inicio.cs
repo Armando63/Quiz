@@ -22,7 +22,7 @@ namespace Quiz
         {
                Selector select = new Selector();
                 select.Show();
-                 this.Hide();
+                this.Close();
 
         }
 
@@ -30,7 +30,7 @@ namespace Quiz
 		{
 			Selector select = new Selector();
 			select.Show();
-			this.Hide();
+            this.Close();
 		}
 	}
 }
