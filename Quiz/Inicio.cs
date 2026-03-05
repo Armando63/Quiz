@@ -20,16 +20,19 @@ namespace Quiz
 
         private void button1_Click(object sender, EventArgs e)
         {
+                this.Hide();
                Selector select = new Selector();
-                select.Show();
-                this.Close();
+                select.ShowDialog();
+                this.Show();
 
         }
 
 		private void button2_Click(object sender, EventArgs e)
 		{
-			Historial select = new Historial();
-			select.Show();
+            this.Hide();
+			Historial history = new Historial();
+			history.ShowDialog();
+            this.Show();
             
 		}
 	}
