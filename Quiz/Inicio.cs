@@ -28,9 +28,9 @@ namespace Quiz
 
 		private void button2_Click(object sender, EventArgs e)
 		{
-			Selector select = new Selector();
+			Historial select = new Historial();
 			select.Show();
-            this.Close();
+            
 		}
 	}
 }
