@@ -9,3 +9,14 @@ C:\Users\raulb\source\repos\Quiz\Quiz\obj\Debug\Quiz.exe
 C:\Users\raulb\source\repos\Quiz\Quiz\obj\Debug\Quiz.pdb
 C:\Users\raulb\source\repos\Quiz\Quiz\obj\Debug\Quiz.Inicio.resources
 C:\Users\raulb\source\repos\Quiz\Quiz\obj\Debug\Quiz.Selector.resources
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\bin\Debug\Quiz.exe.config
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\bin\Debug\Quiz.exe
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\bin\Debug\Quiz.pdb
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\obj\Debug\Quiz.csproj.AssemblyReference.cache
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\obj\Debug\Quiz.Inicio.resources
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\obj\Debug\Quiz.Properties.Resources.resources
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\obj\Debug\Quiz.Selector.resources
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\obj\Debug\Quiz.csproj.GenerateResource.cache
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\obj\Debug\Quiz.csproj.CoreCompileInputs.cache
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\obj\Debug\Quiz.exe
+C:\Users\Usuario\OneDrive\Documentos\Algoritmos\Quiz\Quiz\obj\Debug\Quiz.pdb
