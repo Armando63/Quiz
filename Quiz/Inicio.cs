@@ -25,5 +25,12 @@ namespace Quiz
                  this.Hide();
 
         }
-    }
+
+		private void button2_Click(object sender, EventArgs e)
+		{
+			Selector select = new Selector();
+			select.Show();
+			this.Hide();
+		}
+	}
 }
