@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace Quiz
 {
     public partial class Inicio : Form
@@ -20,20 +21,26 @@ namespace Quiz
 
         private void button1_Click(object sender, EventArgs e)
         {
-                this.Hide();
-               Selector select = new Selector();
-                select.ShowDialog();
-                this.Show();
+			this.Hide();
+			Selector select = new Selector();
+			select.ShowDialog();
+			this.Show();
 
-        }
-
-		private void button2_Click(object sender, EventArgs e)
-		{
-            this.Hide();
-			Historial history = new Historial();
-			history.ShowDialog();
-            this.Show();
-            
 		}
-	}
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+			this.Hide();
+			Historial select = new Historial();
+			select.Show();
+			this.Show();
+		}
+
+        private void boton_salir_Click(object sender, EventArgs e)
+        {
+			this.Close();
+		}
+
+       
+    }
 }
