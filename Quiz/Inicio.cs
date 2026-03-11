@@ -33,7 +33,7 @@ namespace Quiz
         {
 			this.Hide();
 			Historial select = new Historial();
-			select.Show();
+			select.ShowDialog();
 			this.Show();
 		}
 
