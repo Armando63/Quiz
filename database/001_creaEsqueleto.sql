@@ -1,4 +1,4 @@
-CREATE SCHEMA `quiz_bd`;
+CREATE SCHEMA quiz_bd;
 USE quiz_bd;
 
 -- TABLA CATEGORIAS
@@ -11,9 +11,7 @@ CREATE TABLE categorias (
 CREATE TABLE preguntas (
     id_pregunta INT AUTO_INCREMENT PRIMARY KEY,
     id_categoria INT,
-    texto TEXT,
-    tipo ENUM('texto','imagen','audio'),
-    recurso VARCHAR(255),
+    texto TEXT NOT NULL,
     FOREIGN KEY (id_categoria) REFERENCES categorias(id_categoria)
 );
 
@@ -21,7 +19,8 @@ CREATE TABLE preguntas (
 CREATE TABLE opciones (
     id_opcion INT AUTO_INCREMENT PRIMARY KEY,
     id_pregunta INT,
-    opcion VARCHAR(255),
+    tipo ENUM('texto','imagen','audio') NOT NULL,
+    contenido VARCHAR(255) NOT NULL,
     es_correcta BOOLEAN,
     FOREIGN KEY (id_pregunta) REFERENCES preguntas(id_pregunta)
 );
@@ -41,12 +40,14 @@ CREATE TABLE respuestas_partida (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_partida INT,
     id_pregunta INT,
+    id_opcion INT,
     correcta BOOLEAN,
     FOREIGN KEY (id_partida) REFERENCES partidas(id_partida),
-    FOREIGN KEY (id_pregunta) REFERENCES preguntas(id_pregunta)
+    FOREIGN KEY (id_pregunta) REFERENCES preguntas(id_pregunta),
+    FOREIGN KEY (id_opcion) REFERENCES opciones(id_opcion)
 );
 
-
+-- INSERTAR CATEGORIAS
 INSERT INTO categorias (nombre) VALUES
 ('Politica Mex'),
 ('Deportes'),
