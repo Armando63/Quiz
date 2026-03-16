@@ -1,128 +1,124 @@
 USE quiz_bd;
+UPDATE categorias
+SET nombre = 'Videojuegos'
+WHERE id_categoria = 4;
 
 -- PREGUNTA 1
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (4,'¿Qué compañía creó la consola PlayStation?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'texto','Nintendo',FALSE),
-(LAST_INSERT_ID(),'texto','Sony',TRUE),
-(LAST_INSERT_ID(),'texto','Microsoft',FALSE),
-(LAST_INSERT_ID(),'texto','Sega',FALSE);
-
+(1,'texto','Nintendo',FALSE),
+(1,'texto','Sony',TRUE),
+(1,'texto','Microsoft',FALSE),
+(1,'texto','Sega',FALSE);
 
 -- PREGUNTA 2
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (4,'¿Cuál es el protagonista principal de la saga The Legend of Zelda?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'texto','Mario',FALSE),
-(LAST_INSERT_ID(),'texto','Link',TRUE),
-(LAST_INSERT_ID(),'texto','Zelda',FALSE),
-(LAST_INSERT_ID(),'texto','Samus',FALSE);
-
+(2,'texto','Mario',FALSE),
+(2,'texto','Link',TRUE),
+(2,'texto','Zelda',FALSE),
+(2,'texto','Samus',FALSE);
 
 -- PREGUNTA 3
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (4,'¿En qué videojuego aparece el personaje Master Chief?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'texto','Halo',TRUE),
-(LAST_INSERT_ID(),'texto','Gears of War',FALSE),
-(LAST_INSERT_ID(),'texto','Call of Duty',FALSE),
-(LAST_INSERT_ID(),'texto','Battlefield',FALSE);
-
+(3,'texto','Halo',TRUE),
+(3,'texto','Gears of War',FALSE),
+(3,'texto','Call of Duty',FALSE),
+(3,'texto','Battlefield',FALSE);
 
 -- PREGUNTA 4
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (4,'¿Cuál de estos videojuegos es del género battle royale?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'texto','Minecraft',FALSE),
-(LAST_INSERT_ID(),'texto','Fortnite',TRUE),
-(LAST_INSERT_ID(),'texto','The Sims 4',FALSE),
-(LAST_INSERT_ID(),'texto','FIFA 23',FALSE);
+(4,'texto','Minecraft',FALSE),
+(4,'texto','Fortnite',TRUE),
+(4,'texto','The Sims 4',FALSE),
+(4,'texto','FIFA 23',FALSE);
 
 -- PREGUNTA 5
 INSERT INTO preguntas (id_categoria, texto)
-VALUES (4,'¿Cual es la forma de obtener un corazon mas en terraria?');
+VALUES (4,'¿Cual es la forma de obtener un corazon mas en Terraria?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'imagen','imagenes/zelda.jpg',FALSE),
-(LAST_INSERT_ID(),'imagen','imagenes/mario.jpg',FALSE),
-(LAST_INSERT_ID(),'imagen','imagenes/terra.jpg',TRUE),
-(LAST_INSERT_ID(),'imagen','imagenes/mine.jpg',FALSE);
+(5,'imagen','imagenes/zelda.jpg',FALSE),
+(5,'imagen','imagenes/mario.jpg',FALSE),
+(5,'imagen','imagenes/terra.jpg',TRUE),
+(5,'imagen','imagenes/mine.jpg',FALSE);
 
 -- PREGUNTA 6
 INSERT INTO preguntas (id_categoria, texto)
-VALUES (4,'¿Cual es el nombre de la arma principal que tiene kratos en los god of war de la saga griega?');
+VALUES (4,'¿Cual es el nombre del arma principal que tiene Kratos en los God of War de la saga griega?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'imagen','imagenes/pico.jpg',FALSE),
-(LAST_INSERT_ID(),'imagen','imagenes/caos.jpg',TRUE),
-(LAST_INSERT_ID(),'imagen','imagenes/llave.jpg',FALSE),
-(LAST_INSERT_ID(),'imagen','imagenes/armzelda.jpg',FALSE);
+(6,'imagen','imagenes/pico.jpg',FALSE),
+(6,'imagen','imagenes/caos.jpg',TRUE),
+(6,'imagen','imagenes/llave.jpg',FALSE),
+(6,'imagen','imagenes/armzelda.jpg',FALSE);
 
 -- PREGUNTA 7
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (4,'¿Cual juego gano como mejor juego del año en el 2016?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'imagen','imagenes/forni.jpg',FALSE),
-(LAST_INSERT_ID(),'imagen','imagenes/god.jpg',FALSE),
-(LAST_INSERT_ID(),'imagen','imagenes/issac.jpg',FALSE),
-(LAST_INSERT_ID(),'imagen','imagenes/over.jpg',TRUE);
-
+(7,'imagen','imagenes/forni.jpg',FALSE),
+(7,'imagen','imagenes/god.jpg',FALSE),
+(7,'imagen','imagenes/issac.jpg',FALSE),
+(7,'imagen','imagenes/over.jpg',TRUE);
 
 -- PREGUNTA 8
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (4,'¿Cual juego fue el que impulso el exito de los battle royale?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'imagen','imagenes/apex.jpg',FALSE),
-(LAST_INSERT_ID(),'imagen','imagenes/for.jpg',TRUE),
-(LAST_INSERT_ID(),'imagen','imagenes/H1.jpg',FALSE),
-(LAST_INSERT_ID(),'imagen','imagenes/pubg.jpg',FALSE);
-
+(8,'imagen','imagenes/apex.jpg',FALSE),
+(8,'imagen','imagenes/for.jpg',TRUE),
+(8,'imagen','imagenes/H1.jpg',FALSE),
+(8,'imagen','imagenes/pubg.jpg',FALSE);
 
 -- PREGUNTA 9
 INSERT INTO preguntas (id_categoria, texto)
-VALUES (4,'¿Cual es el sonido que hace el cofre de fornite?');
+VALUES (4,'¿Cual es el sonido que hace el cofre de Fortnite?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'audio','audios/cofreclash.mp3',FALSE),
-(LAST_INSERT_ID(),'audio','audios/cofrefornite.mp3',TRUE),
-(LAST_INSERT_ID(),'audio','audios/cofremine.mp3',FALSE),
-(LAST_INSERT_ID(),'audio','audios/cofrezelda.mp3',FALSE);
+(9,'audio','audios/cofreclash.mp3',FALSE),
+(9,'audio','audios/cofrefornite.mp3',TRUE),
+(9,'audio','audios/cofremine.mp3',FALSE),
+(9,'audio','audios/cofrezelda.mp3',FALSE);
 
 -- PREGUNTA 10
 INSERT INTO preguntas (id_categoria, texto)
-VALUES (4,'¿Cual es el sonido de muerte que hace los personajes de Roblox?');
+VALUES (4,'¿Cual es el sonido de muerte que hacen los personajes de Roblox?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'audio','audios/muerte_amon.mp3',FALSE),
-(LAST_INSERT_ID(),'audio','audios/muerte_mario.mp3',FALSE),
-(LAST_INSERT_ID(),'audio','audios/muerte_mine.mp3',FALSE),
-(LAST_INSERT_ID(),'audio','audios/muerte_rob.mp3',TRUE);
-
+(10,'audio','audios/muerte_amon.mp3',FALSE),
+(10,'audio','audios/muerte_mario.mp3',FALSE),
+(10,'audio','audios/muerte_mine.mp3',FALSE),
+(10,'audio','audios/muerte_rob.mp3',TRUE);
 
 -- PREGUNTA 11
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (4,'¿Cual es el sonido que sale cuando pasas una noche en FNAF 1?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'audio','audios/victoria_fnaf.mp3',TRUE),
-(LAST_INSERT_ID(),'audio','audios/victoria_mario.mp3',FALSE),
-(LAST_INSERT_ID(),'audio','audios/victoria_mortal.mp3',FALSE),
-(LAST_INSERT_ID(),'audio','audios/victoria_plan.mp3',FALSE);
-
+(11,'audio','audios/victoria_fnaf.mp3',TRUE),
+(11,'audio','audios/victoria_mario.mp3',FALSE),
+(11,'audio','audios/victoria_mortal.mp3',FALSE),
+(11,'audio','audios/victoria_plan.mp3',FALSE);
 
 -- PREGUNTA 12
 INSERT INTO preguntas (id_categoria, texto)
-VALUES (4,'¿Cual es el sonido que salirte una carta legendaria?');
+VALUES (4,'¿Cual es el sonido cuando te sale una carta legendaria?');
 
 INSERT INTO opciones (id_pregunta,tipo,contenido,es_correcta) VALUES
-(LAST_INSERT_ID(),'audio','audios/clash_carta.mp3',TRUE),
-(LAST_INSERT_ID(),'audio','audios/fnaf.mp3',FALSE),
-(LAST_INSERT_ID(),'audio','audios/min.mp3',FALSE),
-(LAST_INSERT_ID(),'audio','audios/mortal.mp3',FALSE);
+(12,'audio','audios/clash_carta.mp3',TRUE),
+(12,'audio','audios/fnaf.mp3',FALSE),
+(12,'audio','audios/min.mp3',FALSE),
+(12,'audio','audios/mortal.mp3',FALSE);

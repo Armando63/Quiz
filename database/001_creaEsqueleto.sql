@@ -49,7 +49,7 @@ CREATE TABLE respuestas_partida (
 
 -- INSERTAR CATEGORIAS
 INSERT INTO categorias (nombre) VALUES
-('Politica Mex'),
+('Desastres Naturales'),
 ('Deportes'),
 ('Musica'),
 ('VideoJuegos'),
