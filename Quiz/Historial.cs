@@ -16,5 +16,12 @@ namespace Quiz
         {
             InitializeComponent();
         }
-    }
+
+		private void boton_regreso_Click(object sender, EventArgs e)
+		{
+			Inicio select = new Inicio();
+		
+			select.ShowDialog();
+		}
+	}
 }
