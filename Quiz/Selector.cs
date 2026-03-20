@@ -58,9 +58,9 @@ namespace Quiz
 			// aqui se abre el form que contednrá las preguntas
 			pnl.Click += (s, e) =>
 			{
+				this.Hide();
 				Preguntas preg = new Preguntas(categoriaId);
 				preg.ShowDialog();
-				this.Hide();
 				this.Close();
 			};
 		}
