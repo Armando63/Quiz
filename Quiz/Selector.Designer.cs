@@ -28,80 +28,122 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.SuspendLayout();
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(58, 73);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(198, 73);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(319, 73);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "button3";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(431, 73);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 3;
-            this.button4.Text = "button4";
-            this.button4.UseVisualStyleBackColor = true;
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(574, 73);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 4;
-            this.button5.Text = "button5";
-            this.button5.UseVisualStyleBackColor = true;
-            // 
-            // Selector
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Name = "Selector";
-            this.Text = "Selector";
-            this.ResumeLayout(false);
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Selector));
+			this.boton_regreso = new System.Windows.Forms.Button();
+			this.label1 = new System.Windows.Forms.Label();
+			this.pnlFauna = new System.Windows.Forms.Panel();
+			this.pnlVideojuegos = new System.Windows.Forms.Panel();
+			this.pnlPeliculas = new System.Windows.Forms.Panel();
+			this.pnlAnime = new System.Windows.Forms.Panel();
+			this.pnlDesastres = new System.Windows.Forms.Panel();
+			this.pnlDeportes = new System.Windows.Forms.Panel();
+			this.pnlMusica = new System.Windows.Forms.Panel();
+			this.SuspendLayout();
+			// 
+			// boton_regreso
+			// 
+			this.boton_regreso.BackColor = System.Drawing.Color.IndianRed;
+			this.boton_regreso.Location = new System.Drawing.Point(12, 531);
+			this.boton_regreso.Name = "boton_regreso";
+			this.boton_regreso.Size = new System.Drawing.Size(105, 42);
+			this.boton_regreso.TabIndex = 5;
+			this.boton_regreso.Text = "REGRESAR";
+			this.boton_regreso.UseVisualStyleBackColor = false;
+			this.boton_regreso.Click += new System.EventHandler(this.boton_regreso_Click);
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.BackColor = System.Drawing.Color.Transparent;
+			this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+			this.label1.Location = new System.Drawing.Point(76, 20);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(0, 69);
+			this.label1.TabIndex = 8;
+			// 
+			// pnlFauna
+			// 
+			this.pnlFauna.Location = new System.Drawing.Point(257, 388);
+			this.pnlFauna.Name = "pnlFauna";
+			this.pnlFauna.Size = new System.Drawing.Size(155, 103);
+			this.pnlFauna.TabIndex = 9;
+			// 
+			// pnlVideojuegos
+			// 
+			this.pnlVideojuegos.Location = new System.Drawing.Point(665, 388);
+			this.pnlVideojuegos.Name = "pnlVideojuegos";
+			this.pnlVideojuegos.Size = new System.Drawing.Size(147, 99);
+			this.pnlVideojuegos.TabIndex = 10;
+			// 
+			// pnlPeliculas
+			// 
+			this.pnlPeliculas.Location = new System.Drawing.Point(877, 210);
+			this.pnlPeliculas.Name = "pnlPeliculas";
+			this.pnlPeliculas.Size = new System.Drawing.Size(146, 98);
+			this.pnlPeliculas.TabIndex = 11;
+			// 
+			// pnlAnime
+			// 
+			this.pnlAnime.Location = new System.Drawing.Point(665, 210);
+			this.pnlAnime.Name = "pnlAnime";
+			this.pnlAnime.Size = new System.Drawing.Size(147, 99);
+			this.pnlAnime.TabIndex = 12;
+			// 
+			// pnlDesastres
+			// 
+			this.pnlDesastres.Location = new System.Drawing.Point(462, 210);
+			this.pnlDesastres.Name = "pnlDesastres";
+			this.pnlDesastres.Size = new System.Drawing.Size(149, 98);
+			this.pnlDesastres.TabIndex = 13;
+			// 
+			// pnlDeportes
+			// 
+			this.pnlDeportes.Location = new System.Drawing.Point(260, 207);
+			this.pnlDeportes.Name = "pnlDeportes";
+			this.pnlDeportes.Size = new System.Drawing.Size(145, 98);
+			this.pnlDeportes.TabIndex = 14;
+			// 
+			// pnlMusica
+			// 
+			this.pnlMusica.Location = new System.Drawing.Point(56, 206);
+			this.pnlMusica.Name = "pnlMusica";
+			this.pnlMusica.Size = new System.Drawing.Size(145, 100);
+			this.pnlMusica.TabIndex = 15;
+			// 
+			// Selector
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+			this.ClientSize = new System.Drawing.Size(1033, 585);
+			this.Controls.Add(this.pnlMusica);
+			this.Controls.Add(this.pnlDeportes);
+			this.Controls.Add(this.pnlDesastres);
+			this.Controls.Add(this.pnlAnime);
+			this.Controls.Add(this.pnlPeliculas);
+			this.Controls.Add(this.pnlVideojuegos);
+			this.Controls.Add(this.pnlFauna);
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.boton_regreso);
+			this.Name = "Selector";
+			this.Text = "Selector";
+			this.Load += new System.EventHandler(this.Selector_Load);
+			this.ResumeLayout(false);
+			this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-    }
+		private System.Windows.Forms.Button boton_regreso;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Panel pnlFauna;
+		private System.Windows.Forms.Panel pnlVideojuegos;
+		private System.Windows.Forms.Panel pnlPeliculas;
+		private System.Windows.Forms.Panel pnlAnime;
+		private System.Windows.Forms.Panel pnlDesastres;
+		private System.Windows.Forms.Panel pnlDeportes;
+		private System.Windows.Forms.Panel pnlMusica;
+	}
 }
