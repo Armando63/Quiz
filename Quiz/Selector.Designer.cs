@@ -117,7 +117,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-			this.ClientSize = new System.Drawing.Size(1033, 585);
+			this.ClientSize = new System.Drawing.Size(1058, 585);
 			this.Controls.Add(this.pnlMusica);
 			this.Controls.Add(this.pnlDeportes);
 			this.Controls.Add(this.pnlDesastres);
