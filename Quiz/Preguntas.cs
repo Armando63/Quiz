@@ -208,6 +208,16 @@ namespace Quiz
 			MessageBox.Show($"Puntaje final: {puntaje}");
 			this.Close();
 		}
+
+		private void lblNumero_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void lblOpcion4_Click(object sender, EventArgs e)
+		{
+
+		}
 	}
 
 	public class Pregunta
