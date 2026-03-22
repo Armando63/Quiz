@@ -16,6 +16,7 @@ namespace Quiz
 		private int categoriaId;
 		private int indiceActual = 0;
 		private int puntaje = 0;
+		private int incorrecta = 0;
 
 		private List<Pregunta> preguntas;
 		private List<Panel> panelesOpciones;
@@ -188,6 +189,7 @@ namespace Quiz
 			else
 			{
 				pnl.BackColor = Color.Red;
+				incorrecta++;
 			}
 
 			lblPuntaje.Text = $"Puntaje: {puntaje}";
@@ -207,6 +209,7 @@ namespace Quiz
 		{
 			MessageBox.Show($"Puntaje final: {puntaje}");
 			this.Close();
+			InsertarPartidas();
 		}
 
 		private void lblNumero_Click(object sender, EventArgs e)
@@ -218,7 +221,27 @@ namespace Quiz
 		{
 
 		}
-	}
+
+        private void InsertarPartidas()
+        {
+
+            using (MySqlConnection conn = new MySqlConnection(connStr))
+            {
+                conn.Open();
+
+                string query = @"
+					INSERT INTO partidas (id_categoria, aciertos, errores)
+					VALUES (@categoria, @correctas, @incorrectas);
+                ";
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@categoria", categoriaId);
+                cmd.Parameters.AddWithValue("@correctas", puntaje);
+                cmd.Parameters.AddWithValue("@incorrectas", incorrecta);
+                cmd.ExecuteNonQuery();
+            }
+        }
+    }
 
 	public class Pregunta
 	{
