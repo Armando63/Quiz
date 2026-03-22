@@ -55,67 +55,67 @@ INSERT INTO preguntas (id_categoria, texto)
 VALUES (5, 'Que anime tuvo un episodio que fue transmitido en plazas y otros lugares publicos en Mexico');
 
 INSERT INTO opciones (id_pregunta, tipo, contenido, es_correcta) VALUES
-(last_insert_id(), 'imagen', 'Quiz/imagenes/pingu.jpg', false),
-(last_insert_id(), 'imagen', 'Quiz/imagenes/onepis.jpg', false),
-(last_insert_id(), 'imagen', 'Quiz/imagenes/pokemon.jpg', false),
-(last_insert_id(), 'imagen', 'Quiz/imagenes/dragonball.jpg', true);
+(last_insert_id(), 'imagen', 'imagenes/pingu.jpg', false),
+(last_insert_id(), 'imagen', 'imagenes/onepis.jpg', false),
+(last_insert_id(), 'imagen', 'imagenes/pokemon.jpg', false),
+(last_insert_id(), 'imagen', 'imagenes/dragonball.jpg', true);
 
 -- Pregunta 7
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (5, 'En los arcos de viajes escolares, cual es el destino que comunmente suelen viajar en los animes');
 
 INSERT INTO opciones (id_pregunta, tipo, contenido, es_correcta) VALUES
-(last_insert_id(), 'imagen', 'Quiz/imagenes/mejico.jpg', false),
-(last_insert_id(), 'imagen', 'Quiz/imagenes/fukushima.jpg', false),
-(last_insert_id(), 'imagen', 'Quiz/imagenes/saga.jpg', false),
-(last_insert_id(), 'imagen', 'Quiz/imagenes/kioto.jpg', true);
+(last_insert_id(), 'imagen', 'imagenes/mejico.jpg', false),
+(last_insert_id(), 'imagen', 'imagenes/fukushima.jpg', false),
+(last_insert_id(), 'imagen', 'imagenes/saga.jpg', false),
+(last_insert_id(), 'imagen', 'imagenes/kioto.jpg', true);
 
 -- Pregunta 8
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (5, 'Anime que es famoso por tener un arco de 8 episodios repitiendo lo mismo con pocos cambios en los personajes');
 
 INSERT INTO opciones (id_pregunta, tipo, contenido, es_correcta) VALUES
-(last_insert_id(), 'imagen', 'Quiz/imagenes/shinchan.jpg', false),
-(last_insert_id(), 'imagen', 'Quiz/imagenes/haruhi.jpg', true),
-(last_insert_id(), 'imagen', 'Quiz/imagenes/steinsgate.jpg', false),
-(last_insert_id(), 'imagen', 'Quiz/imagenes/bahamut.jpg', false);
+(last_insert_id(), 'imagen', 'imagenes/shinchan.jpg', false),
+(last_insert_id(), 'imagen', 'imagenes/haruhi.jpg', true),
+(last_insert_id(), 'imagen', 'imagenes/steinsgate.jpg', false),
+(last_insert_id(), 'imagen', 'imagenes/bahamut.jpg', false);
 
 -- Pregunta 9
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (5, 'Sonido que usan comunmente para interrumpir al protagonista cuando le va a decir algo importante a alguien');
 
 INSERT INTO opciones (id_pregunta, tipo, contenido, es_correcta) VALUES
-(last_insert_id(), 'audio', 'Quiz/audios/fierro.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/camotes.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/gente.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/tren.mp3', true);
+(last_insert_id(), 'audio', 'audios/fierro.mp3', false),
+(last_insert_id(), 'audio', 'audios/camotes.mp3', false),
+(last_insert_id(), 'audio', 'audios/gente.mp3', false),
+(last_insert_id(), 'audio', 'audios/tren.mp3', true);
 
 -- Pregunta 10
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (5, 'Ending que se volvio popular en Japon en los 2007 por la coreografia que aparece en el');
 
 INSERT INTO opciones (id_pregunta, tipo, contenido, es_correcta) VALUES
-(last_insert_id(), 'audio', 'Quiz/audios/luckystar.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/rubychan.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/harehareyukai.mp3', true),
-(last_insert_id(), 'audio', 'Quiz/audios/umapyoi.mp3', false);
+(last_insert_id(), 'audio', 'audios/luckystar.mp3', false),
+(last_insert_id(), 'audio', 'audios/rubychan.mp3', false),
+(last_insert_id(), 'audio', 'audios/harehareyukai.mp3', true),
+(last_insert_id(), 'audio', 'audios/umapyoi.mp3', false);
 
 -- Pregunta 11
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (5, 'Cual de las siguientes canciones es el ending de un anime de chicas que conducen tanques');
 
 INSERT INTO opciones (id_pregunta, tipo, contenido, es_correcta) VALUES
-(last_insert_id(), 'audio', 'Quiz/audios/liella.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/gup.mp3', true),
-(last_insert_id(), 'audio', 'Quiz/audios/senki.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/walkure.mp3', false);
+(last_insert_id(), 'audio', 'audios/liella.mp3', false),
+(last_insert_id(), 'audio', 'audios/gup.mp3', true),
+(last_insert_id(), 'audio', 'audios/senki.mp3', false),
+(last_insert_id(), 'audio', 'audios/walkure.mp3', false);
 
 -- Pregunta 12
 INSERT INTO preguntas (id_categoria, texto)
 VALUES (5, 'Es el opening de un anime de chicas caballo');
 
 INSERT INTO opciones (id_pregunta, tipo, contenido, es_correcta) VALUES
-(last_insert_id(), 'audio', 'Quiz/audios/ganso.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/colorful.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/bokurawa.mp3', false),
-(last_insert_id(), 'audio', 'Quiz/audios/kitasan.mp3', true);
+(last_insert_id(), 'audio', 'audios/ganso.mp3', false),
+(last_insert_id(), 'audio', 'audios/colorful.mp3', false),
+(last_insert_id(), 'audio', 'audios/bokurawa.mp3', false),
+(last_insert_id(), 'audio', 'audios/kitasan.mp3', true);
