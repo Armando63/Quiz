@@ -31,24 +31,24 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Preguntas));
 			this.lblPregunta = new System.Windows.Forms.Label();
 			this.pnlOpcion1 = new System.Windows.Forms.Panel();
+			this.btn_play1 = new System.Windows.Forms.Button();
 			this.pictureBox2 = new System.Windows.Forms.PictureBox();
 			this.lblOpcion1 = new System.Windows.Forms.Label();
 			this.pnlOpcion2 = new System.Windows.Forms.Panel();
+			this.btn_play2 = new System.Windows.Forms.Button();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
 			this.lblOpcion2 = new System.Windows.Forms.Label();
 			this.pnlOpcion3 = new System.Windows.Forms.Panel();
+			this.btn_play3 = new System.Windows.Forms.Button();
 			this.pictureBox3 = new System.Windows.Forms.PictureBox();
 			this.lblOpcion3 = new System.Windows.Forms.Label();
 			this.pnlOpcion4 = new System.Windows.Forms.Panel();
+			this.btn_play4 = new System.Windows.Forms.Button();
 			this.pictureBox4 = new System.Windows.Forms.PictureBox();
 			this.lblOpcion4 = new System.Windows.Forms.Label();
 			this.lblNumero = new System.Windows.Forms.Label();
 			this.lblPuntaje = new System.Windows.Forms.Label();
 			this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
-			this.btn_play2 = new System.Windows.Forms.Button();
-			this.btn_play1 = new System.Windows.Forms.Button();
-			this.btn_play3 = new System.Windows.Forms.Button();
-			this.btn_play4 = new System.Windows.Forms.Button();
 			this.pnlOpcion1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this.pnlOpcion2.SuspendLayout();
@@ -79,17 +79,26 @@
 			this.pnlOpcion1.Controls.Add(this.pictureBox2);
 			this.pnlOpcion1.Controls.Add(this.lblOpcion1);
 			this.pnlOpcion1.Location = new System.Drawing.Point(40, 108);
-			this.pnlOpcion1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.pnlOpcion1.Margin = new System.Windows.Forms.Padding(4);
 			this.pnlOpcion1.Name = "pnlOpcion1";
 			this.pnlOpcion1.Size = new System.Drawing.Size(305, 225);
 			this.pnlOpcion1.TabIndex = 1;
 			// 
+			// btn_play1
+			// 
+			this.btn_play1.Location = new System.Drawing.Point(70, 2);
+			this.btn_play1.Name = "btn_play1";
+			this.btn_play1.Size = new System.Drawing.Size(144, 39);
+			this.btn_play1.TabIndex = 9;
+			this.btn_play1.Text = "Reproducir";
+			this.btn_play1.UseVisualStyleBackColor = true;
+			// 
 			// pictureBox2
 			// 
-			this.pictureBox2.Location = new System.Drawing.Point(0, 73);
+			this.pictureBox2.Location = new System.Drawing.Point(0, 0);
 			this.pictureBox2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.pictureBox2.Name = "pictureBox2";
-			this.pictureBox2.Size = new System.Drawing.Size(305, 150);
+			this.pictureBox2.Size = new System.Drawing.Size(305, 223);
 			this.pictureBox2.TabIndex = 7;
 			this.pictureBox2.TabStop = false;
 			// 
@@ -113,17 +122,26 @@
 			this.pnlOpcion2.Controls.Add(this.pictureBox1);
 			this.pnlOpcion2.Controls.Add(this.lblOpcion2);
 			this.pnlOpcion2.Location = new System.Drawing.Point(413, 110);
-			this.pnlOpcion2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.pnlOpcion2.Margin = new System.Windows.Forms.Padding(4);
 			this.pnlOpcion2.Name = "pnlOpcion2";
 			this.pnlOpcion2.Size = new System.Drawing.Size(301, 223);
 			this.pnlOpcion2.TabIndex = 2;
 			// 
+			// btn_play2
+			// 
+			this.btn_play2.Location = new System.Drawing.Point(78, 0);
+			this.btn_play2.Name = "btn_play2";
+			this.btn_play2.Size = new System.Drawing.Size(144, 39);
+			this.btn_play2.TabIndex = 8;
+			this.btn_play2.Text = "Reproducir";
+			this.btn_play2.UseVisualStyleBackColor = true;
+			// 
 			// pictureBox1
 			// 
-			this.pictureBox1.Location = new System.Drawing.Point(-1, 66);
+			this.pictureBox1.Location = new System.Drawing.Point(-1, 2);
 			this.pictureBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.pictureBox1.Name = "pictureBox1";
-			this.pictureBox1.Size = new System.Drawing.Size(299, 155);
+			this.pictureBox1.Size = new System.Drawing.Size(299, 219);
 			this.pictureBox1.TabIndex = 1;
 			this.pictureBox1.TabStop = false;
 			// 
@@ -147,17 +165,26 @@
 			this.pnlOpcion3.Controls.Add(this.pictureBox3);
 			this.pnlOpcion3.Controls.Add(this.lblOpcion3);
 			this.pnlOpcion3.Location = new System.Drawing.Point(37, 360);
-			this.pnlOpcion3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.pnlOpcion3.Margin = new System.Windows.Forms.Padding(4);
 			this.pnlOpcion3.Name = "pnlOpcion3";
 			this.pnlOpcion3.Size = new System.Drawing.Size(305, 230);
 			this.pnlOpcion3.TabIndex = 3;
 			// 
+			// btn_play3
+			// 
+			this.btn_play3.Location = new System.Drawing.Point(73, 0);
+			this.btn_play3.Name = "btn_play3";
+			this.btn_play3.Size = new System.Drawing.Size(144, 39);
+			this.btn_play3.TabIndex = 9;
+			this.btn_play3.Text = "Reproducir";
+			this.btn_play3.UseVisualStyleBackColor = true;
+			// 
 			// pictureBox3
 			// 
-			this.pictureBox3.Location = new System.Drawing.Point(0, 68);
+			this.pictureBox3.Location = new System.Drawing.Point(0, 2);
 			this.pictureBox3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.pictureBox3.Name = "pictureBox3";
-			this.pictureBox3.Size = new System.Drawing.Size(308, 162);
+			this.pictureBox3.Size = new System.Drawing.Size(308, 228);
 			this.pictureBox3.TabIndex = 7;
 			this.pictureBox3.TabStop = false;
 			// 
@@ -181,17 +208,26 @@
 			this.pnlOpcion4.Controls.Add(this.pictureBox4);
 			this.pnlOpcion4.Controls.Add(this.lblOpcion4);
 			this.pnlOpcion4.Location = new System.Drawing.Point(413, 360);
-			this.pnlOpcion4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.pnlOpcion4.Margin = new System.Windows.Forms.Padding(4);
 			this.pnlOpcion4.Name = "pnlOpcion4";
 			this.pnlOpcion4.Size = new System.Drawing.Size(305, 230);
 			this.pnlOpcion4.TabIndex = 4;
 			// 
+			// btn_play4
+			// 
+			this.btn_play4.Location = new System.Drawing.Point(78, 0);
+			this.btn_play4.Name = "btn_play4";
+			this.btn_play4.Size = new System.Drawing.Size(144, 39);
+			this.btn_play4.TabIndex = 9;
+			this.btn_play4.Text = "Reproducir";
+			this.btn_play4.UseVisualStyleBackColor = true;
+			// 
 			// pictureBox4
 			// 
-			this.pictureBox4.Location = new System.Drawing.Point(-1, 67);
+			this.pictureBox4.Location = new System.Drawing.Point(-1, 2);
 			this.pictureBox4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
 			this.pictureBox4.Name = "pictureBox4";
-			this.pictureBox4.Size = new System.Drawing.Size(306, 161);
+			this.pictureBox4.Size = new System.Drawing.Size(306, 226);
 			this.pictureBox4.TabIndex = 1;
 			this.pictureBox4.TabStop = false;
 			// 
@@ -239,55 +275,19 @@
 			// 
 			this.axWindowsMediaPlayer1.Enabled = true;
 			this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(750, 269);
-			this.axWindowsMediaPlayer1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.axWindowsMediaPlayer1.Margin = new System.Windows.Forms.Padding(4);
 			this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
 			this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
 			this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(204, 43);
 			this.axWindowsMediaPlayer1.TabIndex = 7;
 			this.axWindowsMediaPlayer1.Visible = false;
 			// 
-			// btn_play2
-			// 
-			this.btn_play2.Location = new System.Drawing.Point(78, 0);
-			this.btn_play2.Name = "btn_play2";
-			this.btn_play2.Size = new System.Drawing.Size(144, 39);
-			this.btn_play2.TabIndex = 8;
-			this.btn_play2.Text = "Reproducir";
-			this.btn_play2.UseVisualStyleBackColor = true;
-			// 
-			// btn_play1
-			// 
-			this.btn_play1.Location = new System.Drawing.Point(70, 2);
-			this.btn_play1.Name = "btn_play1";
-			this.btn_play1.Size = new System.Drawing.Size(144, 39);
-			this.btn_play1.TabIndex = 9;
-			this.btn_play1.Text = "Reproducir";
-			this.btn_play1.UseVisualStyleBackColor = true;
-			// 
-			// btn_play3
-			// 
-			this.btn_play3.Location = new System.Drawing.Point(73, 0);
-			this.btn_play3.Name = "btn_play3";
-			this.btn_play3.Size = new System.Drawing.Size(144, 39);
-			this.btn_play3.TabIndex = 9;
-			this.btn_play3.Text = "Reproducir";
-			this.btn_play3.UseVisualStyleBackColor = true;
-			// 
-			// btn_play4
-			// 
-			this.btn_play4.Location = new System.Drawing.Point(78, 0);
-			this.btn_play4.Name = "btn_play4";
-			this.btn_play4.Size = new System.Drawing.Size(144, 39);
-			this.btn_play4.TabIndex = 9;
-			this.btn_play4.Text = "Reproducir";
-			this.btn_play4.UseVisualStyleBackColor = true;
-			// 
 			// Preguntas
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-			this.ClientSize = new System.Drawing.Size(1000, 603);
+			this.ClientSize = new System.Drawing.Size(1028, 603);
 			this.Controls.Add(this.axWindowsMediaPlayer1);
 			this.Controls.Add(this.lblPuntaje);
 			this.Controls.Add(this.lblNumero);
