@@ -31,17 +31,16 @@ namespace Quiz
 
         private int opcionSeleccionada = -1;
         private bool mostrandoResultado = false;
-        private bool resultadoCorrecto = false;
-        private DateTime tiempoResultado;
 
-        // Estados para animaciones
+        // Estados para animaciones y audio
         private int hoverIndex = -1;
+        private int opcionAudioActual = -1;  // Índice de la opción de audio que se está reproduciendo
 
         // Fuentes
-        private Font fuenteTitulo;
         private Font fuentePregunta;
         private Font fuenteOpcion;
         private Font fuenteNumero;
+        private Font fuentePuntaje;
 
         // Colores
         private Color colorFondo = Color.FromArgb(30, 30, 45);
@@ -51,6 +50,8 @@ namespace Quiz
         private Color colorIncorrecto = Color.FromArgb(244, 67, 54);
         private Color colorHover = Color.FromArgb(66, 66, 88);
         private Color colorBorde = Color.FromArgb(100, 100, 120);
+        private Color colorProgreso = Color.FromArgb(33, 150, 243);
+        private Color colorAudioActivo = Color.FromArgb(33, 150, 243);
 
         string connStr = "server=localhost;database=quiz_bd;uid=root;pwd=1234;";
 
@@ -67,12 +68,13 @@ namespace Quiz
             this.Resize += Preguntas_Resize;
 
             // Inicializar fuentes
-            fuenteTitulo = new Font("Segoe UI", 18, FontStyle.Bold);
-            fuentePregunta = new Font("Segoe UI", 14, FontStyle.Regular);
+            fuentePregunta = new Font("Segoe UI", 16, FontStyle.Bold);
             fuenteOpcion = new Font("Segoe UI", 12, FontStyle.Regular);
             fuenteNumero = new Font("Segoe UI", 10, FontStyle.Regular);
+            fuentePuntaje = new Font("Segoe UI", 12, FontStyle.Bold);
 
             areasOpciones = new Rectangle[4];
+            opcionAudioActual = -1;
         }
 
         private void Preguntas_Resize(object sender, EventArgs e)
@@ -85,22 +87,24 @@ namespace Quiz
         {
             int ancho = this.ClientSize.Width;
             int alto = this.ClientSize.Height;
-            int margen = 20;
+            int margen = 30;
 
-            // Área del título/progreso
-            areaNumero = new Rectangle(margen, margen, 200, 40);
+            // Área del número de pregunta
+            areaNumero = new Rectangle(margen, margen, 200, 35);
+
+            // Área del puntaje
             areaPuntaje = new Rectangle(ancho - 150, margen, 130, 40);
 
             // Área de la pregunta
-            areaPregunta = new Rectangle(margen, 80, ancho - (margen * 2), 80);
+            areaPregunta = new Rectangle(margen, 90, ancho - (margen * 2), 90);
 
-            // Área de progreso visual
-            areaProgreso = new Rectangle(margen, 170, ancho - (margen * 2), 10);
+            // Área de progreso
+            areaProgreso = new Rectangle(margen, 200, ancho - (margen * 2), 8);
 
             // Áreas para las 4 opciones
             int anchoOpcion = (ancho - (margen * 3)) / 2;
-            int altoOpcion = 100;
-            int inicioY = 200;
+            int altoOpcion = 120;
+            int inicioY = 240;
 
             areasOpciones[0] = new Rectangle(margen, inicioY, anchoOpcion, altoOpcion);
             areasOpciones[1] = new Rectangle(ancho - anchoOpcion - margen, inicioY, anchoOpcion, altoOpcion);
@@ -153,6 +157,10 @@ namespace Quiz
                 return;
             }
 
+            // Detener cualquier audio en reproducción
+            reproductor.controls.stop();
+            opcionAudioActual = -1;
+
             var pregunta = preguntas[indiceActual];
             opcionesActuales = ObtenerOpciones(pregunta.Id);
             opcionesActuales = opcionesActuales.OrderBy(x => Guid.NewGuid()).ToList();
@@ -195,150 +203,33 @@ namespace Quiz
 
         private string ObtenerRutaAudio(string nombreArchivo)
         {
-            string basePath = Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\Resources\audios"));
-            string ruta = Path.Combine(basePath, nombreArchivo);
+            // Buscar en la carpeta Resources/audios
+            string[] posiblesRutas = {
+                Path.Combine(Application.StartupPath, "Resources", "audios"),
+                Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\Resources\audios")),
+                Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\..\Resources\audios"))
+            };
 
-            if (File.Exists(ruta)) return ruta;
-
-            string soloNombre = Path.GetFileName(nombreArchivo);
-            ruta = Path.Combine(basePath, soloNombre);
-
-            if (File.Exists(ruta)) return ruta;
-
-            // Intentar con extensión .mp3 si no tiene
-            if (!nombreArchivo.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+            foreach (var basePath in posiblesRutas)
             {
-                ruta = Path.Combine(basePath, nombreArchivo + ".mp3");
-                if (File.Exists(ruta)) return ruta;
+                if (Directory.Exists(basePath))
+                {
+                    string ruta = Path.Combine(basePath, nombreArchivo);
+                    if (File.Exists(ruta)) return ruta;
+
+                    string soloNombre = Path.GetFileName(nombreArchivo);
+                    ruta = Path.Combine(basePath, soloNombre);
+                    if (File.Exists(ruta)) return ruta;
+
+                    if (!nombreArchivo.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ruta = Path.Combine(basePath, nombreArchivo + ".mp3");
+                        if (File.Exists(ruta)) return ruta;
+                    }
+                }
             }
 
             return null;
-        }
-
-        private void DibujarOpcion(Graphics g, int index, Rectangle area, Opcion opcion)
-        {
-            bool esHover = (hoverIndex == index && !mostrandoResultado);
-            bool esSeleccionada = (opcionSeleccionada == index);
-
-            // Color de fondo
-            Color fondo;
-            if (mostrandoResultado && esSeleccionada)
-            {
-                fondo = opcion.EsCorrecta ? colorCorrecto : colorIncorrecto;
-            }
-            else if (esHover)
-            {
-                fondo = colorHover;
-            }
-            else
-            {
-                fondo = colorPanel;
-            }
-
-            // Dibujar fondo con bordes redondeados
-            using (GraphicsPath path = ObtenerPathRedondeado(area, 10))
-            using (SolidBrush brush = new SolidBrush(fondo))
-            {
-                g.FillPath(brush, path);
-
-                // Dibujar borde
-                using (Pen pen = new Pen(colorBorde, 2))
-                {
-                    g.DrawPath(pen, path);
-                }
-            }
-
-            // Dibujar contenido según tipo
-            if (opcion.Tipo == "texto")
-            {
-                // Dibujar texto
-                StringFormat sf = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-
-                using (SolidBrush brushTexto = new SolidBrush(colorTexto))
-                {
-                    g.DrawString(opcion.Texto, fuenteOpcion, brushTexto, area, sf);
-                }
-            }
-            else if (opcion.Tipo == "imagen")
-            {
-                string basePath = Path.Combine(Application.StartupPath, @"..\..\Resources");
-                string ruta = Path.Combine(basePath, opcion.Texto);
-
-                if (File.Exists(ruta))
-                {
-                    using (Image img = Image.FromFile(ruta))
-                    {
-                        // Mantener proporción de la imagen
-                        Rectangle imgArea = new Rectangle(
-                            area.X + 10,
-                            area.Y + 10,
-                            area.Width - 20,
-                            area.Height - 20
-                        );
-                        g.DrawImage(img, imgArea);
-                    }
-                }
-                else
-                {
-                    // Si no hay imagen, mostrar texto de error
-                    StringFormat sf = new StringFormat
-                    {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center
-                    };
-                    g.DrawString("[Imagen no encontrada]", fuenteOpcion, Brushes.Red, area, sf);
-                }
-            }
-            else if (opcion.Tipo == "audio")
-            {
-                // Dibujar icono de audio y texto
-                StringFormat sf = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-
-                // Dibujar icono de altavoz
-                Rectangle iconoArea = new Rectangle(area.X + 20, area.Y + (area.Height / 2) - 15, 30, 30);
-                DibujarIconoAudio(g, iconoArea);
-
-                // Dibujar texto
-                string texto = "🎵 Click para escuchar\nClick otra vez para responder";
-                using (Font fuentePequeña = new Font("Segoe UI", 10))
-                {
-                    Rectangle textoArea = new Rectangle(area.X + 60, area.Y, area.Width - 70, area.Height);
-                    g.DrawString(texto, fuentePequeña, new SolidBrush(colorTexto), textoArea, sf);
-                }
-            }
-        }
-
-        private void DibujarIconoAudio(Graphics g, Rectangle area)
-        {
-            // Dibujar un icono simple de altavoz
-            using (Pen pen = new Pen(colorTexto, 2))
-            {
-                // Cuerpo del altavoz
-                Point[] altavoz = new Point[]
-                {
-                    new Point(area.X + 5, area.Y + 10),
-                    new Point(area.X + 5, area.Y + area.Height - 10),
-                    new Point(area.X + 15, area.Y + area.Height - 10),
-                    new Point(area.X + 25, area.Y + area.Height - 5),
-                    new Point(area.X + 25, area.Y + 5),
-                    new Point(area.X + 15, area.Y + 10)
-                };
-                g.DrawLines(pen, altavoz);
-
-                // Ondas de sonido
-                g.DrawLine(pen, area.X + 30, area.Y + 10, area.X + 35, area.Y + area.Height / 2);
-                g.DrawLine(pen, area.X + 35, area.Y + area.Height / 2, area.X + 30, area.Y + area.Height - 10);
-                g.DrawLine(pen, area.X + 38, area.Y + 5, area.X + 45, area.Y + area.Height / 2);
-                g.DrawLine(pen, area.X + 45, area.Y + area.Height / 2, area.X + 38, area.Y + area.Height - 5);
-            }
         }
 
         private GraphicsPath ObtenerPathRedondeado(Rectangle rect, int radio)
@@ -352,44 +243,46 @@ namespace Quiz
             return path;
         }
 
-        private void Preguntas_Paint(object sender, PaintEventArgs e)
+        private void DibujarOpcion(Graphics g, int index, Rectangle area, Opcion opcion)
         {
-            Graphics g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            bool esHover = (hoverIndex == index && !mostrandoResultado);
+            bool esSeleccionada = (opcionSeleccionada == index);
+            bool esAudioActivo = (opcionAudioActual == index && !mostrandoResultado);
 
-            // Dibujar fondo
-            using (SolidBrush brush = new SolidBrush(colorFondo))
+            // Color de fondo
+            Color fondo;
+            if (mostrandoResultado && esSeleccionada)
             {
-                g.FillRectangle(brush, this.ClientRectangle);
+                fondo = opcion.EsCorrecta ? colorCorrecto : colorIncorrecto;
+            }
+            else if (esAudioActivo)
+            {
+                fondo = colorAudioActivo;
+            }
+            else if (esHover)
+            {
+                fondo = colorHover;
+            }
+            else
+            {
+                fondo = colorPanel;
             }
 
-            // Dibujar información de número de pregunta y puntaje
-            string textoNumero = $"Pregunta {indiceActual + 1} de {preguntas.Count}";
-            string textoPuntaje = $"Puntaje: {puntaje}";
-
-            using (SolidBrush brushTexto = new SolidBrush(colorTexto))
+            // Dibujar fondo con bordes redondeados
+            using (GraphicsPath path = ObtenerPathRedondeado(area, 15))
+            using (SolidBrush brush = new SolidBrush(fondo))
             {
-                g.DrawString(textoNumero, fuenteNumero, brushTexto, areaNumero);
-                g.DrawString(textoPuntaje, fuenteNumero, brushTexto, areaPuntaje);
+                g.FillPath(brush, path);
+
+                // Dibujar borde (si es audio activo, borde más grueso)
+                using (Pen pen = new Pen(esAudioActivo ? colorAudioActivo : colorBorde, esAudioActivo ? 3 : 2))
+                {
+                    g.DrawPath(pen, path);
+                }
             }
 
-            // Dibujar barra de progreso
-            float progreso = (float)(indiceActual) / preguntas.Count;
-            int anchoProgreso = (int)(areaProgreso.Width * progreso);
-
-            using (SolidBrush brushFondo = new SolidBrush(colorPanel))
-            {
-                g.FillRectangle(brushFondo, areaProgreso);
-            }
-
-            using (SolidBrush brushProgreso = new SolidBrush(Color.FromArgb(76, 175, 80)))
-            {
-                g.FillRectangle(brushProgreso, areaProgreso.X, areaProgreso.Y, anchoProgreso, areaProgreso.Height);
-            }
-
-            // Dibujar pregunta
-            if (indiceActual < preguntas.Count)
+            // Dibujar contenido según tipo
+            if (opcion.Tipo == "texto")
             {
                 StringFormat sf = new StringFormat
                 {
@@ -398,12 +291,195 @@ namespace Quiz
                 };
 
                 using (SolidBrush brushTexto = new SolidBrush(colorTexto))
-                using (GraphicsPath path = ObtenerPathRedondeado(areaPregunta, 15))
-                using (SolidBrush brushFondo = new SolidBrush(colorPanel))
                 {
-                    g.FillPath(brushFondo, path);
-                    g.DrawString(preguntas[indiceActual].Texto, fuentePregunta, brushTexto, areaPregunta, sf);
+                    Font fuenteUsar = fuenteOpcion;
+                    if (opcion.Texto.Length > 50)
+                    {
+                        fuenteUsar = new Font("Segoe UI", 10);
+                    }
+                    g.DrawString(opcion.Texto, fuenteUsar, brushTexto, area, sf);
+                    if (fuenteUsar != fuenteOpcion) fuenteUsar.Dispose();
                 }
+            }
+            else if (opcion.Tipo == "imagen")
+            {
+                string basePath = Path.GetFullPath(Path.Combine(Application.StartupPath, @"..\..\Resources"));
+                string ruta = Path.Combine(basePath, opcion.Texto);
+
+                if (File.Exists(ruta))
+                {
+                    try
+                    {
+                        using (Image img = Image.FromFile(ruta))
+                        {
+                            // Calcular área de imagen manteniendo la proporción
+                            Rectangle imgArea = ObtenerAreaImagenProporcional(img, area);
+                            g.DrawImage(img, imgArea);
+                        }
+                    }
+                    catch
+                    {
+                        StringFormat sf = new StringFormat
+                        {
+                            Alignment = StringAlignment.Center,
+                            LineAlignment = StringAlignment.Center
+                        };
+                        g.DrawString("[Error al cargar imagen]", fuenteOpcion, Brushes.Red, area, sf);
+                    }
+                }
+                else
+                {
+                    StringFormat sf = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center
+                    };
+                    g.DrawString("[Imagen no encontrada]", fuenteOpcion, Brushes.Red, area, sf);
+                }
+            }
+            else if (opcion.Tipo == "audio")
+            {
+                // Dibujar icono de audio
+                Rectangle iconoArea = new Rectangle(area.X + 20, area.Y + (area.Height / 2) - 20, 40, 40);
+                DibujarIconoAudio(g, iconoArea, esAudioActivo);
+
+                // Dibujar texto
+                string texto = esAudioActivo ? "🔊   Reproduciendo...\nClick para responder" : "🎵 Click para escuchar\nClick otra vez para responder";
+                Rectangle textoArea = new Rectangle(area.X + 70, area.Y, area.Width - 80, area.Height);
+                using (Font fuentePequeña = new Font("Segoe UI", 10))
+                using (SolidBrush brushTexto = new SolidBrush(colorTexto))
+                {
+                    StringFormat sfAudio = new StringFormat
+                    {
+                        Alignment = StringAlignment.Near,
+                        LineAlignment = StringAlignment.Center
+                    };
+                    g.DrawString(texto, fuentePequeña, brushTexto, textoArea, sfAudio);
+                }
+            }
+        }
+
+        private Rectangle ObtenerAreaImagenProporcional(Image img, Rectangle contenedor)
+        {
+            float proporcionImagen = (float)img.Width / img.Height;
+            float proporcionContenedor = (float)contenedor.Width / contenedor.Height;
+
+            int nuevoAncho, nuevoAlto;
+            int offsetX, offsetY;
+
+            if (proporcionImagen > proporcionContenedor)
+            {
+                // Ajuste por anchura
+                nuevoAncho = contenedor.Width - 20;
+                nuevoAlto = (int)(nuevoAncho / proporcionImagen);
+                offsetX = 10;
+                offsetY = (contenedor.Height - nuevoAlto) / 2;
+            }
+            else
+            {
+                // Ajustar por altura
+                nuevoAlto = contenedor.Height - 20;
+                nuevoAncho = (int)(nuevoAlto * proporcionImagen);
+                offsetX = (contenedor.Width - nuevoAncho) / 2;
+                offsetY = 10;
+            }
+
+            return new Rectangle(
+                contenedor.X + offsetX,
+                contenedor.Y + offsetY,
+                nuevoAncho,
+                nuevoAlto
+            );
+        }
+
+        private void DibujarIconoAudio(Graphics g, Rectangle area, bool activo)
+        {
+            Color colorIcono = activo ? colorAudioActivo : colorTexto;
+
+            using (Pen pen = new Pen(colorIcono, 2))
+            {
+                // Altavoz
+                Point[] altavoz = new Point[]
+                {
+                    new Point(area.X + 5, area.Y + 12),
+                    new Point(area.X + 5, area.Y + area.Height - 12),
+                    new Point(area.X + 18, area.Y + area.Height - 12),
+                    new Point(area.X + 28, area.Y + area.Height - 5),
+                    new Point(area.X + 28, area.Y + 5),
+                    new Point(area.X + 18, area.Y + 12)
+                };
+                g.DrawLines(pen, altavoz);
+
+                // Ondas de sonido
+                g.DrawLine(pen, area.X + 33, area.Y + 8, area.X + 40, area.Y + area.Height / 2);
+                g.DrawLine(pen, area.X + 40, area.Y + area.Height / 2, area.X + 33, area.Y + area.Height - 8);
+                g.DrawLine(pen, area.X + 43, area.Y + 3, area.X + 52, area.Y + area.Height / 2);
+                g.DrawLine(pen, area.X + 52, area.Y + area.Height / 2, area.X + 43, area.Y + area.Height - 3);
+            }
+        }
+
+        private void Preguntas_Paint(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            // Dibujar fondo
+            using (SolidBrush brush = new SolidBrush(colorFondo))
+            {
+                g.FillRectangle(brush, this.ClientRectangle);
+            }
+
+            if (preguntas == null || indiceActual >= preguntas.Count) return;
+
+            // Dibujar número de pregunta
+            string textoNumero = $"Pregunta {indiceActual + 1} de {preguntas.Count}";
+            using (SolidBrush brushTexto = new SolidBrush(colorTexto))
+            {
+                g.DrawString(textoNumero, fuenteNumero, brushTexto, areaNumero);
+            }
+
+            // Dibujar puntaje
+            string textoPuntaje = $"⭐ {puntaje}";
+            using (SolidBrush brushTexto = new SolidBrush(Color.FromArgb(255, 215, 0)))
+            {
+                g.DrawString(textoPuntaje, fuentePuntaje, brushTexto, areaPuntaje);
+            }
+
+            // Dibujar barra de progreso
+            float progreso = (float)(indiceActual) / preguntas.Count;
+            int anchoProgreso = (int)(areaProgreso.Width * progreso);
+
+            using (SolidBrush brushFondo = new SolidBrush(Color.FromArgb(80, 80, 100)))
+            {
+                g.FillRectangle(brushFondo, areaProgreso);
+            }
+
+            using (SolidBrush brushProgreso = new SolidBrush(colorProgreso))
+            {
+                g.FillRectangle(brushProgreso, areaProgreso.X, areaProgreso.Y, anchoProgreso, areaProgreso.Height);
+            }
+
+            // Dibujar pregunta
+            StringFormat sfPregunta = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+
+            using (GraphicsPath path = ObtenerPathRedondeado(areaPregunta, 20))
+            using (SolidBrush brushFondo = new SolidBrush(colorPanel))
+            using (SolidBrush brushTexto = new SolidBrush(colorTexto))
+            {
+                g.FillPath(brushFondo, path);
+
+                using (Pen pen = new Pen(colorProgreso, 2))
+                {
+                    g.DrawPath(pen, path);
+                }
+
+                g.DrawString(preguntas[indiceActual].Texto, fuentePregunta, brushTexto, areaPregunta, sfPregunta);
             }
 
             // Dibujar opciones
@@ -418,9 +494,8 @@ namespace Quiz
 
         private void Preguntas_MouseClick(object sender, MouseEventArgs e)
         {
-            if (mostrandoResultado) return;
+            if (mostrandoResultado || opcionesActuales == null) return;
 
-            // Verificar si se hizo clic en alguna opción
             for (int i = 0; i < areasOpciones.Length && i < opcionesActuales.Count; i++)
             {
                 if (areasOpciones[i].Contains(e.Location))
@@ -435,25 +510,33 @@ namespace Quiz
         {
             Opcion opcion = opcionesActuales[index];
 
-            // Si es audio, manejar reproducción
             if (opcion.Tipo == "audio")
             {
                 string ruta = ObtenerRutaAudio(opcion.Texto);
                 if (!string.IsNullOrEmpty(ruta) && File.Exists(ruta))
                 {
-                    // Verificar si ya se está reproduciendo
-                    if (reproductor.playState == WMPPlayState.wmppsPlaying)
+                    // Si es la misma opción de audio que se está reproduciendo
+                    if (opcionAudioActual == index)
                     {
-                        // Si ya está sonando, este es el segundo click - responder
+                        // Segundo click en la misma opción - responder
                         reproductor.controls.stop();
+                        opcionAudioActual = -1;
                         EvaluarRespuesta(index, opcion);
                     }
                     else
                     {
-                        // Primer click - reproducir audio
+                        // Click en una opción de audio diferente
+                        // Detener el audio anterior
                         reproductor.controls.stop();
+
+                        // Reproducir el nuevo audio
                         reproductor.URL = ruta;
                         reproductor.controls.play();
+
+                        // Actualizar la opción de audio actual
+                        opcionAudioActual = index;
+
+                        Invalidate();
                     }
                 }
                 else
@@ -473,7 +556,6 @@ namespace Quiz
         {
             opcionSeleccionada = index;
             mostrandoResultado = true;
-            resultadoCorrecto = opcion.EsCorrecta;
 
             if (opcion.EsCorrecta)
             {
@@ -484,27 +566,26 @@ namespace Quiz
                 incorrecta++;
             }
 
-            tiempoResultado = DateTime.Now;
             Invalidate();
 
-            // Temporizador para pasar a la siguiente pregunta
-            Timer t = new Timer();
-            t.Interval = 1000;
-            t.Tick += (s, ev) =>
+            Timer timer = new Timer();
+            timer.Interval = 1000;
+            timer.Tick += (s, ev) =>
             {
-                t.Stop();
+                timer.Stop();
+                timer.Dispose();
                 indiceActual++;
                 CargarSiguientePregunta();
             };
-            t.Start();
+            timer.Start();
         }
 
         private void Preguntas_MouseMove(object sender, MouseEventArgs e)
         {
-            if (mostrandoResultado) return;
+            if (mostrandoResultado || opcionesActuales == null) return;
 
             int nuevoHover = -1;
-            for (int i = 0; i < areasOpciones.Length && i < opcionesActuales?.Count; i++)
+            for (int i = 0; i < areasOpciones.Length && i < opcionesActuales.Count; i++)
             {
                 if (areasOpciones[i].Contains(e.Location))
                 {
@@ -524,12 +605,15 @@ namespace Quiz
         {
             reproductor.controls.stop();
 
-            DialogResult result = MessageBox.Show(
-                $"¡Quiz finalizado!\n\nPuntaje: {puntaje} de {preguntas.Count}\n" +
-                $"Correctas: {puntaje}\nIncorrectas: {incorrecta}\n\n" +
-                $"¿Quieres ver los resultados?",
+            MessageBox.Show(
+                $"¡Quiz finalizado!\n\n" +
+                $"Puntaje: {puntaje} de {preguntas.Count}\n" +
+                $"Correctas: {puntaje}\n" +
+                $"Incorrectas: {incorrecta}\n\n" +
+                $"Porcentaje: {(puntaje * 100 / preguntas.Count)}%\n\n" +
+                $"¡Felicidades!",
                 "Quiz Finalizado",
-                MessageBoxButtons.OKCancel,
+                MessageBoxButtons.OK,
                 MessageBoxIcon.Information
             );
 
@@ -558,11 +642,10 @@ namespace Quiz
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar partida: {ex.Message}");
+                MessageBox.Show($"Error al guardar partida: {ex.Message}", "Error",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-       
     }
 
     public class Pregunta

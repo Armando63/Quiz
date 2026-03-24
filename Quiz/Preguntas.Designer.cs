@@ -43,9 +43,8 @@
             this.lblNumero.ForeColor = System.Drawing.Color.Yellow;
             this.lblNumero.Location = new System.Drawing.Point(544, 33);
             this.lblNumero.Name = "lblNumero";
-            this.lblNumero.Size = new System.Drawing.Size(123, 26);
+            this.lblNumero.Size = new System.Drawing.Size(0, 26);
             this.lblNumero.TabIndex = 5;
-            this.lblNumero.Text = "Progreso";
             // 
             // lblPuntaje
             // 
@@ -55,9 +54,8 @@
             this.lblPuntaje.ForeColor = System.Drawing.Color.Red;
             this.lblPuntaje.Location = new System.Drawing.Point(571, 381);
             this.lblPuntaje.Name = "lblPuntaje";
-            this.lblPuntaje.Size = new System.Drawing.Size(100, 29);
+            this.lblPuntaje.Size = new System.Drawing.Size(0, 29);
             this.lblPuntaje.TabIndex = 6;
-            this.lblPuntaje.Text = "Puntaje";
             // 
             // axWindowsMediaPlayer1
             // 
@@ -74,7 +72,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-            this.ClientSize = new System.Drawing.Size(771, 490);
+            this.ClientSize = new System.Drawing.Size(922, 508);
             this.Controls.Add(this.axWindowsMediaPlayer1);
             this.Controls.Add(this.lblPuntaje);
             this.Controls.Add(this.lblNumero);
