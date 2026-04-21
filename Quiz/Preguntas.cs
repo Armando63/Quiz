@@ -295,7 +295,7 @@ namespace Quiz
                     Font fuenteUsar = fuenteOpcion;
                     if (opcion.Texto.Length > 50)
                     {
-                        fuenteUsar = new Font("Segoe UI", 10);
+                        fuenteUsar = new Font("Segoe UI", 15);
                     }
                     g.DrawString(opcion.Texto, fuenteUsar, brushTexto, area, sf);
                     if (fuenteUsar != fuenteOpcion) fuenteUsar.Dispose();
