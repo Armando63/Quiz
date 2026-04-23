@@ -109,6 +109,12 @@
     <Compile Include="Preguntas.Designer.cs">
       <DependentUpon>Preguntas.cs</DependentUpon>
     </Compile>
+    <Compile Include="Resultados.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Resultados.Designer.cs">
+      <DependentUpon>Resultados.cs</DependentUpon>
+    </Compile>
     <Compile Include="Selector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -141,6 +147,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Resultados.resx">
+      <DependentUpon>Resultados.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Selector.resx">
       <DependentUpon>Selector.cs</DependentUpon>
     </EmbeddedResource>
