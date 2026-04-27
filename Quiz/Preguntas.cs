@@ -604,21 +604,14 @@ namespace Quiz
         private void FinalizarQuiz()
         {
             reproductor.controls.stop();
-
-            MessageBox.Show(
-                $"¡Quiz finalizado!\n\n" +
-                $"Puntaje: {puntaje} de {preguntas.Count}\n" +
-                $"Correctas: {puntaje}\n" +
-                $"Incorrectas: {incorrecta}\n\n" +
-                $"Porcentaje: {(puntaje * 100 / preguntas.Count)}%\n\n" +
-                $"¡Felicidades!",
-                "Quiz Finalizado",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            reproductor.controls.stop();
 
             InsertarPartidas();
-            this.Close();
+
+            Resultados frm = new Resultados(puntaje, preguntas.Count);
+            frm.Show();
+
+            this.Hide();
         }
 
         private void InsertarPartidas()
