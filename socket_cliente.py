@@ -1,43 +1,53 @@
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-// Crear cliente UDP
-UdpClient clienteUdp = new UdpClient();
-
-// Habilitar envío por broadcast (a toda la red)
-clienteUdp.EnableBroadcast = true;
-
-// Mensaje que se enviará para buscar el servidor
-string mensajeBusqueda = "BUSCAR_SERVIDOR";
-byte[] datosMensaje = Encoding.UTF8.GetBytes(mensajeBusqueda);
-
-// Enviar mensaje a toda la red en el puerto 65534
-clienteUdp.Send(
-    datosMensaje,
-    datosMensaje.Length,
-    new IPEndPoint(IPAddress.Broadcast, 65534)
-);
-
-// Endpoint para recibir respuesta (cualquier IP y puerto)
-IPEndPoint endpointRemoto = new IPEndPoint(IPAddress.Any, 0);
-
-// Tiempo máximo de espera para recibir respuesta (5 segundos)
-clienteUdp.Client.ReceiveTimeout = 5000;
-
-try
+class Program
 {
-    // Esperar respuesta del servidor
-    byte[] respuesta = clienteUdp.Receive(ref endpointRemoto);
+    static void Main()
+    {
+        Console.WriteLine("1 = Buscar servidor (broadcast)");
+        Console.WriteLine("2 = Conectar por IP manual");
+        string opcion = Console.ReadLine();
 
-    // Si llega respuesta, significa que hay servidor disponible
-    Console.WriteLine("Se conectó con el servidor");
+        UdpClient udp = new UdpClient(65534); // IMPORTANTE: escuchar en mismo puerto
+        udp.EnableBroadcast = true;
 
-    // mostrar quién respondió
-    Console.WriteLine($"IP del servidor: {endpointRemoto.Address}");
-}
-catch (SocketException)
-{
-    // Si no hay respuesta en el tiempo establecido
-    Console.WriteLine("No hay servidor disponible");
+        byte[] msg = Encoding.UTF8.GetBytes("BUSCAR_SERVIDOR");
+
+        IPEndPoint destino;
+
+        if (opcion == "2")
+        {
+            Console.Write("Ingresa la IP del servidor: ");
+            string ip = Console.ReadLine();
+            destino = new IPEndPoint(IPAddress.Parse(ip), 65534);
+        }
+        else
+        {
+            destino = new IPEndPoint(IPAddress.Broadcast, 65534);
+        }
+
+        udp.Send(msg, msg.Length, destino);
+
+        IPEndPoint remoto = new IPEndPoint(IPAddress.Any, 0);
+        udp.Client.ReceiveTimeout = 5000;
+
+        try
+        {
+            byte[] resp = udp.Receive(ref remoto);
+            string respuesta = Encoding.UTF8.GetString(resp);
+
+            Console.WriteLine("Servidor encontrado!");
+            Console.WriteLine("IP: " + remoto.Address);
+            Console.WriteLine("Respuesta: " + respuesta);
+        }
+        catch (SocketException)
+        {
+            Console.WriteLine("No hay servidor respondiendo");
+        }
+
+        udp.Close();
+    }
 }
