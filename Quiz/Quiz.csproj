@@ -153,9 +153,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Resultados.resx">
-      <DependentUpon>Resultados.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Selector.resx">
       <DependentUpon>Selector.cs</DependentUpon>
     </EmbeddedResource>
