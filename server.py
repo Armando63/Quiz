@@ -30,16 +30,19 @@ IP_LOCAL = obtener_ip_local()
 
 def escuchar_comandos():
     global ACTIVO
-    while True:
+    while ACTIVO:
         cmd = input()
         if cmd.lower() == "exit":
             ACTIVO = False
             break
 
 def servidor_tcp():
+    global ACTIVO
+
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tcp.bind(('', PUERTO_TCP))
     tcp.listen(5)
+    tcp.settimeout(1)  # 👈 IMPORTANTE
 
     print(f"Servidor TCP escuchando en puerto {PUERTO_TCP}")
 
@@ -51,7 +54,6 @@ def servidor_tcp():
             if len(preguntas) > 0:
                 pregunta = preguntas[0]
 
-                # 📤 Enviar pregunta
                 data = json.dumps({
                     "tipo": "pregunta",
                     "texto": pregunta["texto"],
@@ -60,7 +62,6 @@ def servidor_tcp():
 
                 cliente.send(data.encode())
 
-                # 📥 Recibir respuesta
                 respuesta_cliente = cliente.recv(1024).decode()
 
                 try:
@@ -82,18 +83,24 @@ def servidor_tcp():
 
             cliente.close()
 
+        except socket.timeout:
+            continue
         except Exception as e:
             print("Error TCP:", e)
 
     tcp.close()
+    print("Servidor TCP cerrado")
 
 def servidor_udp():
+    global ACTIVO
+
     udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp.bind(('', PUERTO_UDP))
+    udp.settimeout(1)  # 👈 IMPORTANTE
 
     print(f"Servidor UDP activo en puerto {PUERTO_UDP}")
     print(f"IP del servidor: {IP_LOCAL}")
-    print("Escribe 'exit' para cerrar\n")
+    print("Escribe 'exit' o presiona Ctrl+C para cerrar\n")
 
     while ACTIVO:
         try:
@@ -104,10 +111,13 @@ def servidor_udp():
                 respuesta = f"{IP_LOCAL}:{PUERTO_TCP}"
                 udp.sendto(respuesta.encode(), addr)
 
+        except socket.timeout:
+            continue
         except Exception as e:
             print("Error UDP:", e)
 
     udp.close()
+    print("Servidor UDP cerrado")
 
 # 🔥 cargar preguntas
 preguntas = obtener_preguntas()
@@ -116,7 +126,13 @@ print("\n📚 Preguntas cargadas:")
 print(preguntas)
 print("--------------------------------------------------\n")
 
-threading.Thread(target=escuchar_comandos, daemon=True).start()
-threading.Thread(target=servidor_tcp, daemon=True).start()
+# 🚀 MAIN
+try:
+    threading.Thread(target=escuchar_comandos, daemon=True).start()
+    threading.Thread(target=servidor_tcp, daemon=True).start()
 
-servidor_udp()
+    servidor_udp()  # 👈 hilo principal
+
+except KeyboardInterrupt:
+    print("\n🛑 Cerrando servidor...")
+    ACTIVO = False
