@@ -7,7 +7,7 @@ class Program
 {
     static void Main()
     {
-        string ip = "10.103.150.185";
+        string ip = ""; // LA IP QUE DICE EL SERVER
         int puerto = 5000;
 
         try

@@ -42,7 +42,7 @@ def servidor_tcp():
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tcp.bind(('', PUERTO_TCP))
     tcp.listen(5)
-    tcp.settimeout(1)  # 👈 IMPORTANTE
+    tcp.settimeout(1) 
 
     print(f"Servidor TCP escuchando en puerto {PUERTO_TCP}")
 
@@ -71,9 +71,9 @@ def servidor_tcp():
                         respuesta = datos["respuesta"]
 
                         if respuesta == pregunta["correcta"]:
-                            cliente.send("Correcto 🎉".encode())
+                            cliente.send("Correcto".encode())
                         else:
-                            cliente.send("Incorrecto ❌".encode())
+                            cliente.send("Incorrecto ".encode())
 
                 except:
                     cliente.send("Error al procesar respuesta".encode())
@@ -96,7 +96,7 @@ def servidor_udp():
 
     udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp.bind(('', PUERTO_UDP))
-    udp.settimeout(1)  # 👈 IMPORTANTE
+    udp.settimeout(1) 
 
     print(f"Servidor UDP activo en puerto {PUERTO_UDP}")
     print(f"IP del servidor: {IP_LOCAL}")
@@ -119,7 +119,7 @@ def servidor_udp():
     udp.close()
     print("Servidor UDP cerrado")
 
-# 🔥 cargar preguntas
+
 preguntas = obtener_preguntas()
 
 print("\n📚 Preguntas cargadas:")
@@ -131,8 +131,8 @@ try:
     threading.Thread(target=escuchar_comandos, daemon=True).start()
     threading.Thread(target=servidor_tcp, daemon=True).start()
 
-    servidor_udp()  # 👈 hilo principal
+    servidor_udp()
 
 except KeyboardInterrupt:
-    print("\n🛑 Cerrando servidor...")
+    print("\n Cerrando servidor...")
     ACTIVO = False
