@@ -48,7 +48,7 @@
             this.btnIndividual.Name = "btnIndividual";
             this.btnIndividual.Size = new System.Drawing.Size(129, 72);
             this.btnIndividual.TabIndex = 0;
-            this.btnIndividual.Text = "Iniciar Juego";
+            this.btnIndividual.Text = "Single player";
             this.btnIndividual.UseVisualStyleBackColor = false;
             this.btnIndividual.Click += new System.EventHandler(this.btnIndividual_Click_1);
             // 
@@ -111,7 +111,7 @@
             this.btnMultijugador.Name = "btnMultijugador";
             this.btnMultijugador.Size = new System.Drawing.Size(129, 72);
             this.btnMultijugador.TabIndex = 5;
-            this.btnMultijugador.Text = "Iniciar Juego";
+            this.btnMultijugador.Text = "Multiplayer";
             this.btnMultijugador.UseVisualStyleBackColor = false;
             this.btnMultijugador.Click += new System.EventHandler(this.btnMultijugador_Click_1);
             // 
