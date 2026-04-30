@@ -1,12 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Quiz
@@ -38,9 +32,10 @@ namespace Quiz
                 conn.Open();
 
                 string query = @"
-                    SELECT id_categoria, aciertos, errores 
-                    FROM partidas
-                    ORDER BY aciertos DESC;
+                    SELECT j.nombre, pj.puntaje, pj.aciertos, pj.errores
+                    FROM partida_jugadores pj
+                    INNER JOIN jugadores j ON pj.id_jugador = j.id_jugador
+                    ORDER BY pj.puntaje DESC;
                 ";
 
                 MySqlDataAdapter da = new MySqlDataAdapter(query, conn);

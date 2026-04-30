@@ -621,36 +621,52 @@ namespace Quiz
                 using (MySqlConnection conn = new MySqlConnection(connStr))
                 {
                     conn.Open();
-                    string query = @"
-                        INSERT INTO partidas (id_categoria, aciertos, errores)
-                        VALUES (@categoria, @correctas, @incorrectas);
-                    ";
 
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@categoria", categoriaId);
-                    cmd.Parameters.AddWithValue("@correctas", puntaje);
-                    cmd.Parameters.AddWithValue("@incorrectas", incorrecta);
-                    cmd.ExecuteNonQuery();
+                    // 1. Crear partida
+                    string queryPartida = @"
+                INSERT INTO partidas (id_categoria, fecha, estado, max_jugadores, codigo_sala, pregunta_actual, modo)
+                VALUES (@categoria, NOW(), 'finalizada', 1, '', 0, 'individual');
+                SELECT LAST_INSERT_ID();
+            ";
+
+                    MySqlCommand cmdPartida = new MySqlCommand(queryPartida, conn);
+                    cmdPartida.Parameters.AddWithValue("@categoria", categoriaId);
+
+                    int idPartida = Convert.ToInt32(cmdPartida.ExecuteScalar());
+
+                    // 2. Insertar resultado del jugador
+                    string queryJugador = @"
+                INSERT INTO partida_jugadores (id_partida, id_jugador, puntaje, aciertos, errores, listo)
+                VALUES (@partida, @jugador, @puntaje, @aciertos, @errores, 1);
+            ";
+
+                    MySqlCommand cmdJugador = new MySqlCommand(queryJugador, conn);
+                    cmdJugador.Parameters.AddWithValue("@partida", idPartida);
+                    cmdJugador.Parameters.AddWithValue("@jugador", Inicio.idJugadorGlobal);
+                    cmdJugador.Parameters.AddWithValue("@puntaje", puntaje);
+                    cmdJugador.Parameters.AddWithValue("@aciertos", puntaje);
+                    cmdJugador.Parameters.AddWithValue("@errores", incorrecta);
+
+                    cmdJugador.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar partida: {ex.Message}", "Error",
-                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al guardar partida: {ex.Message}");
             }
         }
-    }
 
-    public class Pregunta
-    {
-        public int Id { get; set; }
-        public string Texto { get; set; }
-    }
+        public class Pregunta
+        {
+            public int Id { get; set; }
+            public string Texto { get; set; }
+        }
 
-    public class Opcion
-    {
-        public string Texto { get; set; }
-        public bool EsCorrecta { get; set; }
-        public string Tipo { get; set; }
+        public class Opcion
+        {
+            public string Texto { get; set; }
+            public bool EsCorrecta { get; set; }
+            public string Tipo { get; set; }
+        }
     }
 }

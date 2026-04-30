@@ -28,101 +28,142 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Inicio));
-			this.button1 = new System.Windows.Forms.Button();
-			this.button2 = new System.Windows.Forms.Button();
-			this.boton_salir = new System.Windows.Forms.Button();
-			this.label1 = new System.Windows.Forms.Label();
-			this.label2 = new System.Windows.Forms.Label();
-			this.SuspendLayout();
-			// 
-			// button1
-			// 
-			this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-			this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-			this.button1.Location = new System.Drawing.Point(282, 270);
-			this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(221, 88);
-			this.button1.TabIndex = 0;
-			this.button1.Text = "Iniciar Juego";
-			this.button1.UseVisualStyleBackColor = false;
-			this.button1.Click += new System.EventHandler(this.button1_Click);
-			// 
-			// button2
-			// 
-			this.button2.BackColor = System.Drawing.Color.LightSkyBlue;
-			this.button2.Location = new System.Drawing.Point(148, 362);
-			this.button2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-			this.button2.Name = "button2";
-			this.button2.Size = new System.Drawing.Size(172, 77);
-			this.button2.TabIndex = 1;
-			this.button2.Text = "Historial de partidas";
-			this.button2.UseVisualStyleBackColor = false;
-			this.button2.Click += new System.EventHandler(this.button2_Click);
-			// 
-			// boton_salir
-			// 
-			this.boton_salir.BackColor = System.Drawing.Color.LightCoral;
-			this.boton_salir.Location = new System.Drawing.Point(457, 361);
-			this.boton_salir.Name = "boton_salir";
-			this.boton_salir.Size = new System.Drawing.Size(190, 77);
-			this.boton_salir.TabIndex = 2;
-			this.boton_salir.Text = "Salir";
-			this.boton_salir.UseVisualStyleBackColor = false;
-			this.boton_salir.Click += new System.EventHandler(this.boton_salir_Click);
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.BackColor = System.Drawing.Color.Transparent;
-			this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label1.ForeColor = System.Drawing.Color.Yellow;
-			this.label1.Location = new System.Drawing.Point(291, 89);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(232, 69);
-			this.label1.TabIndex = 3;
-			this.label1.Text = "\"QUIZ\" ";
-			// 
-			// label2
-			// 
-			this.label2.AutoSize = true;
-			this.label2.BackColor = System.Drawing.Color.Transparent;
-			this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 22.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label2.ForeColor = System.Drawing.Color.Yellow;
-			this.label2.Location = new System.Drawing.Point(204, 174);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(397, 42);
-			this.label2.TabIndex = 4;
-			this.label2.Text = "Pon a prueba tu mente";
-			// 
-			// Inicio
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.ClientSize = new System.Drawing.Size(785, 450);
-			this.Controls.Add(this.label2);
-			this.Controls.Add(this.label1);
-			this.Controls.Add(this.boton_salir);
-			this.Controls.Add(this.button2);
-			this.Controls.Add(this.button1);
-			this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-			this.Name = "Inicio";
-			this.Text = "Quiz";
-			this.ResumeLayout(false);
-			this.PerformLayout();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Inicio));
+            this.btnIndividual = new System.Windows.Forms.Button();
+            this.btnHistorial = new System.Windows.Forms.Button();
+            this.btnSalir = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.btnMultijugador = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtNombre = new System.Windows.Forms.TextBox();
+            this.SuspendLayout();
+            // 
+            // btnIndividual
+            // 
+            this.btnIndividual.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.btnIndividual.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+            this.btnIndividual.Location = new System.Drawing.Point(111, 202);
+            this.btnIndividual.Margin = new System.Windows.Forms.Padding(2);
+            this.btnIndividual.Name = "btnIndividual";
+            this.btnIndividual.Size = new System.Drawing.Size(129, 72);
+            this.btnIndividual.TabIndex = 0;
+            this.btnIndividual.Text = "Iniciar Juego";
+            this.btnIndividual.UseVisualStyleBackColor = false;
+            this.btnIndividual.Click += new System.EventHandler(this.btnIndividual_Click_1);
+            // 
+            // btnHistorial
+            // 
+            this.btnHistorial.BackColor = System.Drawing.Color.LightSkyBlue;
+            this.btnHistorial.Location = new System.Drawing.Point(111, 294);
+            this.btnHistorial.Margin = new System.Windows.Forms.Padding(2);
+            this.btnHistorial.Name = "btnHistorial";
+            this.btnHistorial.Size = new System.Drawing.Size(129, 63);
+            this.btnHistorial.TabIndex = 1;
+            this.btnHistorial.Text = "Historial de partidas";
+            this.btnHistorial.UseVisualStyleBackColor = false;
+            this.btnHistorial.Click += new System.EventHandler(this.btnHistorial_Click);
+            // 
+            // btnSalir
+            // 
+            this.btnSalir.BackColor = System.Drawing.Color.LightCoral;
+            this.btnSalir.Location = new System.Drawing.Point(343, 293);
+            this.btnSalir.Margin = new System.Windows.Forms.Padding(2);
+            this.btnSalir.Name = "btnSalir";
+            this.btnSalir.Size = new System.Drawing.Size(129, 63);
+            this.btnSalir.TabIndex = 2;
+            this.btnSalir.Text = "Salir";
+            this.btnSalir.UseVisualStyleBackColor = false;
+            this.btnSalir.Click += new System.EventHandler(this.btnSalir_Click_1);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.Yellow;
+            this.label1.Location = new System.Drawing.Point(221, 33);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(185, 55);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "\"QUIZ\" ";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.Transparent;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 22.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.Yellow;
+            this.label2.Location = new System.Drawing.Point(146, 88);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(315, 36);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Pon a prueba tu mente";
+            // 
+            // btnMultijugador
+            // 
+            this.btnMultijugador.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.btnMultijugador.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+            this.btnMultijugador.Location = new System.Drawing.Point(343, 202);
+            this.btnMultijugador.Margin = new System.Windows.Forms.Padding(2);
+            this.btnMultijugador.Name = "btnMultijugador";
+            this.btnMultijugador.Size = new System.Drawing.Size(129, 72);
+            this.btnMultijugador.TabIndex = 5;
+            this.btnMultijugador.Text = "Iniciar Juego";
+            this.btnMultijugador.UseVisualStyleBackColor = false;
+            this.btnMultijugador.Click += new System.EventHandler(this.btnMultijugador_Click_1);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(385, 150);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(35, 13);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "label3";
+            // 
+            // txtNombre
+            // 
+            this.txtNombre.Location = new System.Drawing.Point(152, 150);
+            this.txtNombre.Name = "txtNombre";
+            this.txtNombre.Size = new System.Drawing.Size(100, 20);
+            this.txtNombre.TabIndex = 7;
+            // 
+            // Inicio
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.ClientSize = new System.Drawing.Size(589, 366);
+            this.Controls.Add(this.txtNombre);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.btnMultijugador);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.btnSalir);
+            this.Controls.Add(this.btnHistorial);
+            this.Controls.Add(this.btnIndividual);
+            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Name = "Inicio";
+            this.Text = "Quiz";
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button boton_salir;
+        private System.Windows.Forms.Button btnIndividual;
+        private System.Windows.Forms.Button btnHistorial;
+        private System.Windows.Forms.Button btnSalir;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button btnMultijugador;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox txtNombre;
     }
 }
 

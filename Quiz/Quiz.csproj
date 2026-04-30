@@ -115,6 +115,12 @@
     <Compile Include="Resultados.Designer.cs">
       <DependentUpon>Resultados.cs</DependentUpon>
     </Compile>
+    <Compile Include="SalaMultijugador.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SalaMultijugador.Designer.cs">
+      <DependentUpon>SalaMultijugador.cs</DependentUpon>
+    </Compile>
     <Compile Include="Selector.cs">
       <SubType>Form</SubType>
     </Compile>
