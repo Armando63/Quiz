@@ -625,7 +625,7 @@ namespace Quiz
                     // 1. Crear partida
                     string queryPartida = @"
                 INSERT INTO partidas (id_categoria, fecha, estado, max_jugadores, codigo_sala, pregunta_actual, modo)
-                VALUES (@categoria, NOW(), 'finalizada', 1, '', 0, 'individual');
+                VALUES (@categoria, NOW(), 'finalizada', 1, '', 0, 'singleplayer');
                 SELECT LAST_INSERT_ID();
             ";
 
