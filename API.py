@@ -31,9 +31,8 @@ def conexion():
         "puerto": 5000
     }
 
-
 @app.get("/preguntas")
-def obtener_preguntas():
+def obtener_preguntas(categoria: int = None):
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
 
@@ -46,10 +45,18 @@ def obtener_preguntas():
         o.es_correcta
     FROM preguntas p
     JOIN opciones o ON p.id_pregunta = o.id_pregunta
-    ORDER BY p.id_pregunta;
     """
 
-    cursor.execute(query)
+    if categoria is not None:
+        query += " WHERE p.id_categoria = %s"
+
+    query += " ORDER BY p.id_pregunta;"
+
+    if categoria is not None:
+        cursor.execute(query, (categoria,))
+    else:
+        cursor.execute(query)
+
     filas = cursor.fetchall()
 
     preguntas = {}

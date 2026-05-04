@@ -1,11 +1,14 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Windows.Forms;
-using MySql.Data.MySqlClient;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using WMPLib;
 
 namespace Quiz
@@ -19,6 +22,7 @@ namespace Quiz
 
         private List<Pregunta> preguntas;
         private List<Opcion> opcionesActuales;
+        private List<ApiPregunta> apiPreguntas;  
 
         private WindowsMediaPlayer reproductor = new WindowsMediaPlayer();
 
@@ -77,6 +81,13 @@ namespace Quiz
             opcionAudioActual = -1;
         }
 
+        public class ApiPregunta
+        {
+            public string texto { get; set; }
+            public List<string> opciones { get; set; }
+            public int correcta { get; set; }
+        }
+
         private void Preguntas_Resize(object sender, EventArgs e)
         {
             CalcularAreas();
@@ -112,64 +123,73 @@ namespace Quiz
             areasOpciones[3] = new Rectangle(ancho - anchoOpcion - margen, inicioY + altoOpcion + margen, anchoOpcion, altoOpcion);
         }
 
-        private void Preguntas_Load(object sender, EventArgs e)
+        private async void Preguntas_Load(object sender, EventArgs e)
         {
             CalcularAreas();
-            CargarPreguntas();
+           await CargarPreguntas();
             CargarSiguientePregunta();
         }
 
-        private void CargarPreguntas()
+
+        private async Task CargarPreguntas()
         {
-            preguntas = new List<Pregunta>();
-
-            using (MySqlConnection conn = new MySqlConnection(connStr))
+            using (HttpClient client = new HttpClient())
             {
-                conn.Open();
-                string query = @"
-                    SELECT id_pregunta, texto 
-                    FROM preguntas
-                    WHERE id_categoria = @cat
-                    ORDER BY RAND()
-                    LIMIT 12;
-                ";
+                string url = $"http://127.0.0.1:8000/preguntas?categoria={categoriaId}";
 
-                MySqlCommand cmd = new MySqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@cat", categoriaId);
-                var reader = cmd.ExecuteReader();
+                var response = await client.GetStringAsync(url);
 
-                while (reader.Read())
-                {
-                    preguntas.Add(new Pregunta
-                    {
-                        Id = Convert.ToInt32(reader["id_pregunta"]),
-                        Texto = reader["texto"].ToString()
-                    });
-                }
+                apiPreguntas = JsonConvert.DeserializeObject<List<ApiPregunta>>(response);
+
+                apiPreguntas = apiPreguntas.OrderBy(x => Guid.NewGuid()).ToList();
             }
         }
 
         private void CargarSiguientePregunta()
         {
-            if (indiceActual >= preguntas.Count)
+            if (apiPreguntas == null || indiceActual >= apiPreguntas.Count)
             {
                 FinalizarQuiz();
                 return;
             }
 
-            // Detener cualquier audio en reproducción
+            // Detener audio
             reproductor.controls.stop();
             opcionAudioActual = -1;
 
-            var pregunta = preguntas[indiceActual];
-            opcionesActuales = ObtenerOpciones(pregunta.Id);
+            var pregunta = apiPreguntas[indiceActual];
+
+            opcionesActuales = new List<Opcion>();
+
+            for (int i = 0; i < pregunta.opciones.Count; i++)
+            {
+                string contenido = pregunta.opciones[i];
+
+                string tipo;
+
+                if (contenido.EndsWith(".jpg") || contenido.EndsWith(".png"))
+                    tipo = "imagen";
+                else if (contenido.EndsWith(".mp3"))
+                    tipo = "audio";
+                else
+                    tipo = "texto";
+
+                opcionesActuales.Add(new Opcion
+                {
+                    Texto = contenido,
+                    EsCorrecta = (i == pregunta.correcta),
+                    Tipo = tipo
+                });
+            }
+
+            // Mezclar opciones
             opcionesActuales = opcionesActuales.OrderBy(x => Guid.NewGuid()).ToList();
 
             opcionSeleccionada = -1;
             mostrandoResultado = false;
+
             Invalidate();
         }
-
         private List<Opcion> ObtenerOpciones(int preguntaId)
         {
             List<Opcion> opciones = new List<Opcion>();
@@ -420,6 +440,9 @@ namespace Quiz
 
         private void Preguntas_Paint(object sender, PaintEventArgs e)
         {
+            if (apiPreguntas == null || apiPreguntas.Count == 0)
+                return;
+
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -431,10 +454,10 @@ namespace Quiz
                 g.FillRectangle(brush, this.ClientRectangle);
             }
 
-            if (preguntas == null || indiceActual >= preguntas.Count) return;
+            if (apiPreguntas == null || indiceActual >= apiPreguntas.Count) return;
 
             // Dibujar número de pregunta
-            string textoNumero = $"Pregunta {indiceActual + 1} de {preguntas.Count}";
+            string textoNumero = $"Pregunta {indiceActual + 1} de {apiPreguntas.Count}";
             using (SolidBrush brushTexto = new SolidBrush(colorTexto))
             {
                 g.DrawString(textoNumero, fuenteNumero, brushTexto, areaNumero);
@@ -448,7 +471,7 @@ namespace Quiz
             }
 
             // Dibujar barra de progreso
-            float progreso = (float)(indiceActual) / preguntas.Count;
+            float progreso = (float)(indiceActual) / apiPreguntas.Count;
             int anchoProgreso = (int)(areaProgreso.Width * progreso);
 
             using (SolidBrush brushFondo = new SolidBrush(Color.FromArgb(80, 80, 100)))
@@ -479,7 +502,7 @@ namespace Quiz
                     g.DrawPath(pen, path);
                 }
 
-                g.DrawString(preguntas[indiceActual].Texto, fuentePregunta, brushTexto, areaPregunta, sfPregunta);
+                g.DrawString(apiPreguntas[indiceActual].texto, fuentePregunta, brushTexto, areaPregunta, sfPregunta);
             }
 
             // Dibujar opciones
@@ -606,9 +629,9 @@ namespace Quiz
             reproductor.controls.stop();
             reproductor.controls.stop();
 
-            InsertarPartidas();
+           InsertarPartidas();
 
-            Resultados frm = new Resultados(puntaje, preguntas.Count);
+            Resultados frm = new Resultados(puntaje, apiPreguntas.Count);
             frm.Show();
 
             this.Hide();
