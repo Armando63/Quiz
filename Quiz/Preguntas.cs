@@ -20,7 +20,6 @@ namespace Quiz
         private int puntaje = 0;
         private int incorrecta = 0;
 
-        private List<Pregunta> preguntas;
         private List<Opcion> opcionesActuales;
         private List<ApiPregunta> apiPreguntas;  
 
@@ -190,37 +189,7 @@ namespace Quiz
 
             Invalidate();
         }
-        private List<Opcion> ObtenerOpciones(int preguntaId)
-        {
-            List<Opcion> opciones = new List<Opcion>();
-
-            using (MySqlConnection conn = new MySqlConnection(connStr))
-            {
-                conn.Open();
-                string query = @"
-                    SELECT contenido, es_correcta, tipo
-                    FROM opciones
-                    WHERE id_pregunta = @id;
-                ";
-
-                MySqlCommand cmd = new MySqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@id", preguntaId);
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    opciones.Add(new Opcion
-                    {
-                        Texto = reader["contenido"].ToString(),
-                        EsCorrecta = Convert.ToInt32(reader["es_correcta"]) == 1,
-                        Tipo = reader["tipo"].ToString()
-                    });
-                }
-            }
-
-            return opciones;
-        }
-
+   
         private string ObtenerRutaAudio(string nombreArchivo)
         {
             // Buscar en la carpeta Resources/audios
