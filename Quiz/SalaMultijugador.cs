@@ -26,6 +26,7 @@ namespace Quiz
 		private Thread hiloEscucha;
 		private bool partidaIniciada = false;
 		private string categoriaSeleccionada = "";
+		private bool escuchando = true;
 
 		public SalaMultijugador()
 		{
@@ -218,13 +219,13 @@ namespace Quiz
 
 			try
 			{
-				while (true)
+				while (escuchando)
 				{
 					int bytes = stream.Read(buffer, 0, buffer.Length);
 					if (bytes == 0) break;
 
 					string json = Encoding.UTF8.GetString(buffer, 0, bytes);
-					Console.WriteLine($"Mensaje del servidor: {json}"); // DEBUG
+					Console.WriteLine($"Mensaje del servidor: {json}");
 
 					dynamic data = JsonConvert.DeserializeObject(json);
 					string tipo = data.tipo.ToString();
@@ -253,28 +254,25 @@ namespace Quiz
 
 							Console.WriteLine($"🎮 ¡Partida iniciada! Categoría: {categoriaSeleccionada}");
 
-							// Pequeña pausa para que el servidor se prepare
-							Thread.Sleep(500);
+							// DETENER escucha del lobby
+							escuchando = false;
 
 							this.Invoke((MethodInvoker)delegate {
-								// ABRIR PREGUNTAS SOLO CUANDO EL SERVIDOR LO ORDENA
-								this.Hide(); // Ocultar el lobby
+								this.Hide();
 
-								Preguntas ventanaPreguntas = new Preguntas(categoriaSeleccionada, Inicio.nombreJugadorGlobal, cliente);
+								Preguntas ventanaPreguntas = new Preguntas(
+									categoriaSeleccionada,
+									Inicio.nombreJugadorGlobal,
+									cliente
+								);
+
 								ventanaPreguntas.FormClosed += (s, args) => {
-									// Cuando se cierran las preguntas, volver al lobby o cerrar
 									this.Close();
 								};
+
 								ventanaPreguntas.Show();
 							});
 						}
-					}
-					else if (tipo == "error")
-					{
-						this.Invoke((MethodInvoker)delegate {
-							MessageBox.Show(data.mensaje.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-						});
-						break;
 					}
 				}
 			}
@@ -282,28 +280,23 @@ namespace Quiz
 			{
 				Console.WriteLine($"Error en escucha: {ex.Message}");
 			}
-			finally
-			{
-				if (cliente != null && cliente.Connected)
-				{
-					cliente.Close();
-				}
-			}
 		}
 
 		private void EnviarMensaje(object obj)
 		{
 			try
 			{
-				string json = JsonConvert.SerializeObject(obj);
+				string json = JsonConvert.SerializeObject(obj) + "\n";
 				byte[] data = Encoding.UTF8.GetBytes(json);
 				stream.Write(data, 0, data.Length);
-				Console.WriteLine($"Enviado: {json}"); // DEBUG
+				Console.WriteLine($"Enviado: {json}");
 			}
 			catch (Exception ex)
 			{
 				Console.WriteLine($"Error al enviar mensaje: {ex.Message}");
 			}
 		}
+
+
 	}
 }

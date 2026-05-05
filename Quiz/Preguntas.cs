@@ -154,39 +154,27 @@ namespace Quiz
 			{
 				while (partidaActiva)
 				{
-					if (streamServidor.DataAvailable)
+					int bytes = streamServidor.Read(buffer, 0, buffer.Length);
+					if (bytes == 0) break;
+
+					string json = Encoding.UTF8.GetString(buffer, 0, bytes);
+					dynamic data = JsonConvert.DeserializeObject(json);
+
+					Console.WriteLine($"Mensaje recibido: {data.tipo}");
+
+					if (data.tipo == "siguiente_pregunta")
 					{
-						int bytes = streamServidor.Read(buffer, 0, buffer.Length);
-						if (bytes == 0) break;
-
-						string json = Encoding.UTF8.GetString(buffer, 0, bytes);
-						dynamic data = JsonConvert.DeserializeObject(json);
-
-						Console.WriteLine($"Mensaje recibido: {data.tipo}"); // DEBUG
-
-						if (data.tipo == "iniciar_partida")
-						{
-							// Esto ya debería funcionar
-							string categoria = data.categoria.ToString();
-							this.Invoke((MethodInvoker)delegate {
-								// Ya está en el formulario de preguntas
-							});
-						}
-						else if (data.tipo == "siguiente_pregunta")
-						{
-							this.Invoke((MethodInvoker)delegate {
-								lblEstado.Visible = false;
-								SiguientePregunta();
-							});
-						}
-						else if (data.tipo == "fin_partida")
-						{
-							this.Invoke((MethodInvoker)delegate {
-								FinalizarQuizMultijugador(data.puntajes);
-							});
-						}
+						this.Invoke((MethodInvoker)delegate {
+							lblEstado.Visible = false;
+							SiguientePregunta();
+						});
 					}
-					Thread.Sleep(100);
+					else if (data.tipo == "fin_partida")
+					{
+						this.Invoke((MethodInvoker)delegate {
+							FinalizarQuizMultijugador(data.puntajes);
+						});
+					}
 				}
 			}
 			catch (Exception ex)
