@@ -21,17 +21,17 @@ namespace Quiz
 		private List<Jugador> jugadores = new List<Jugador>();
 		private List<Panel> paneles = new List<Panel>();
 		private Label lblEstadoGeneral;
-		TcpClient cliente;
-		NetworkStream stream;
-		Thread hiloEscucha;
+		private TcpClient cliente;
+		private NetworkStream stream;
+		private Thread hiloEscucha;
+		private bool partidaIniciada = false;
 
 		public SalaMultijugador()
 		{
 			InitializeComponent();
-			ConectarAlServidor("192.168.0.18"); // 👈 CAMBIA POR TU IP
+			ConectarAlServidor("10.103.150.143"); // 👈 CAMBIA POR TU IP
 			InicializarUI();
 
-			// Agregar SOLO al jugador actual
 			jugadores.Add(new Jugador
 			{
 				Nombre = Inicio.nombreJugadorGlobal,
@@ -102,7 +102,9 @@ namespace Quiz
 
 			btnSalir.Click += (s, e) =>
 			{
-				this.Close(); // regresa al Inicio automáticamente
+				EnviarMensaje(new { tipo = "leave", nombre = Inicio.nombreJugadorGlobal });
+				Thread.Sleep(100);
+				this.Close();
 			};
 
 			this.Controls.Add(btnSalir);
@@ -117,8 +119,7 @@ namespace Quiz
 
 			btnListo.Click += (s, e) =>
 			{
-				bool nuevoEstado = !jugadores
-					.First(j => j.Nombre == Inicio.nombreJugadorGlobal).Listo;
+				bool nuevoEstado = !jugadores.First(j => j.Nombre == Inicio.nombreJugadorGlobal).Listo;
 
 				EnviarMensaje(new
 				{
@@ -129,7 +130,6 @@ namespace Quiz
 			};
 
 			this.Controls.Add(btnListo);
-
 		}
 
 		private void ActualizarLobby()
@@ -158,52 +158,37 @@ namespace Quiz
 			bool todosListos = jugadores.Count > 0 && jugadores.All(j => j.Listo);
 
 			lblEstadoGeneral.Text = todosListos
-				? "Todos listos ✅"
+				? "Todos listos ✅ Iniciando partida..."
 				: "Esperando jugadores o listos...";
 		}
 
-		// 🔥 Simulación (para pruebas)
-		private void SimularJugadores()
-		{
-			jugadores.Add(new Jugador { Nombre = "Iván", Listo = true });
-			jugadores.Add(new Jugador { Nombre = "Luis", Listo = false });
-			jugadores.Add(new Jugador { Nombre = "Ana", Listo = true });
-		}
-
-		// 🔹 Método que usarías luego con sockets/API
-		public void ActualizarJugador(string nombre, bool listo)
-		{
-			var jugador = jugadores.FirstOrDefault(j => j.Nombre == nombre);
-			if (jugador != null)
-				jugador.Listo = listo;
-			else if (jugadores.Count < 4)
-				jugadores.Add(new Jugador { Nombre = nombre, Listo = listo });
-
-			ActualizarLobby();
-		}
 		private void ConectarAlServidor(string ip)
 		{
-			cliente = new TcpClient();
-			cliente.Connect(ip, 5000);
-
-			stream = cliente.GetStream();
-
-			// Enviar JOIN
-			EnviarMensaje(new
+			try
 			{
-				tipo = "join",
-				nombre = Inicio.nombreJugadorGlobal
-			});
+				cliente = new TcpClient();
+				cliente.Connect(ip, 5000);
+				stream = cliente.GetStream();
 
-			// Iniciar escucha
-			hiloEscucha = new Thread(EscucharServidor);
-			hiloEscucha.IsBackground = true;
-			hiloEscucha.Start();
+				EnviarMensaje(new
+				{
+					tipo = "join",
+					nombre = Inicio.nombreJugadorGlobal
+				});
+
+				hiloEscucha = new Thread(EscucharServidor);
+				hiloEscucha.IsBackground = true;
+				hiloEscucha.Start();
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show($"Error al conectar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 
 		private void EscucharServidor()
 		{
-			byte[] buffer = new byte[1024];
+			byte[] buffer = new byte[4096];
 
 			try
 			{
@@ -213,15 +198,12 @@ namespace Quiz
 					if (bytes == 0) break;
 
 					string json = Encoding.UTF8.GetString(buffer, 0, bytes);
-
 					dynamic data = JsonConvert.DeserializeObject(json);
 
 					if (data.tipo == "lobby_update")
 					{
 						this.Invoke((MethodInvoker)delegate {
-
 							jugadores.Clear();
-
 							foreach (var j in data.jugadores)
 							{
 								jugadores.Add(new Jugador
@@ -230,21 +212,43 @@ namespace Quiz
 									Listo = j.listo
 								});
 							}
-
 							ActualizarLobby();
 						});
 					}
+					else if (data.tipo == "iniciar_partida")
+					{
+						if (!partidaIniciada)
+						{
+							partidaIniciada = true;
+							string categoria = data.categoria.ToString();
+
+							this.Invoke((MethodInvoker)delegate {
+								Preguntas ventanaPreguntas = new Preguntas(categoria, Inicio.nombreJugadorGlobal, cliente);
+								ventanaPreguntas.Show();
+								this.Hide();
+							});
+						}
+					}
 				}
 			}
-			catch { }
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error en escucha: {ex.Message}");
+			}
 		}
 
 		private void EnviarMensaje(object obj)
 		{
-			string json = JsonConvert.SerializeObject(obj);
-			byte[] data = Encoding.UTF8.GetBytes(json);
-			stream.Write(data, 0, data.Length);
+			try
+			{
+				string json = JsonConvert.SerializeObject(obj);
+				byte[] data = Encoding.UTF8.GetBytes(json);
+				stream.Write(data, 0, data.Length);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error al enviar mensaje: {ex.Message}");
+			}
 		}
-
 	}
 }

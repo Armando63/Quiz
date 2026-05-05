@@ -1,149 +1,361 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
 
-
 namespace Quiz
 {
-    public partial class Resultados : Form
-    {
-        string connStr = "server=localhost;database=quiz_bd;uid=root;pwd=1234;";
+	public partial class Resultados : Form
+	{
+		string connStr = "server=localhost;database=quiz_bd;uid=root;pwd=1234;";
 
-        int puntaje;
-        int total;
+		int puntaje;
+		int total;
+		bool esMultijugador;
+		dynamic resultadosMultijugador;
+		string jugadorActual;
 
-        // CONTROLES
-        private Label lblResultado;
-        private Label txtMensaje;
-        private DataGridView dgvJugadores;
-        private Button btnCerrar;
+		private Label lblResultado;
+		private Label txtMensaje;
+		private DataGridView dgvJugadores;
+		private Button btnCerrar;
+		private TabControl tabControl;
 
-        public Resultados(int puntaje, int total)
-        {
-            InitializeComponent();
-            this.puntaje = puntaje;
-            this.total = total;
+		public Resultados(int puntaje, int total)
+		{
+			this.puntaje = puntaje;
+			this.total = total;
+			this.esMultijugador = false;
+			InitializeComponent();
+			ConfigurarFormulario();
+		}
 
-            CrearControles(); // Creamos todo desde código
-        }
+		public Resultados(dynamic resultados, string nombreJugador, int puntajePersonal)
+		{
+			this.resultadosMultijugador = resultados;
+			this.jugadorActual = nombreJugador;
+			this.puntaje = puntajePersonal;
+			this.total = 0;
+			this.esMultijugador = true;
+			InitializeComponent();
+			ConfigurarFormulario();
+		}
 
-        private void Resultados_Load(object sender, EventArgs e)
-        {
-            MostrarResultado();
-            MostrarMensaje();
-            CargarJugadores();
-        }
+		private void ConfigurarFormulario()
+		{
+			this.Text = esMultijugador ? "Resultados Multijugador" : "Resultados";
+			this.Size = new Size(700, 550);
+			this.BackColor = Color.FromArgb(30, 30, 45);
+			this.StartPosition = FormStartPosition.CenterScreen;
 
-        // 🔹 CREAR CONTROLES
-        private void CrearControles()
-        {
-            this.Text = "Resultados";
-            this.Size = new Size(600, 500);
-            this.BackColor = Color.FromArgb(30, 30, 45);
+			tabControl = new TabControl();
+			tabControl.Location = new Point(20, 20);
+			tabControl.Size = new Size(640, 440);
+			tabControl.Font = new Font("Segoe UI", 10, FontStyle.Bold);
 
-            // LABEL RESULTADO
-            lblResultado = new Label();
-            lblResultado.ForeColor = Color.White;
-            lblResultado.Font = new Font("Segoe UI", 16, FontStyle.Bold);
-            lblResultado.Location = new Point(20, 20);
-            lblResultado.AutoSize = true;
+			if (esMultijugador)
+			{
+				TabPage tabPartidaActual = new TabPage("🎮 Resultados de la Partida");
+				ConfigurarTabPartidaActual(tabPartidaActual);
+				tabControl.TabPages.Add(tabPartidaActual);
 
-            // MENSAJE
-            txtMensaje = new Label();
-            txtMensaje.ForeColor = Color.LightGreen;
-            txtMensaje.Font = new Font("Segoe UI", 12, FontStyle.Italic);
-            txtMensaje.Location = new Point(20, 60);
-            txtMensaje.AutoSize = true;
+				TabPage tabTuRendimiento = new TabPage("📊 Tu Rendimiento");
+				ConfigurarTabTuRendimiento(tabTuRendimiento);
+				tabControl.TabPages.Add(tabTuRendimiento);
 
-            // TABLA
-            dgvJugadores = new DataGridView();
-            dgvJugadores.Location = new Point(20, 100);
-            dgvJugadores.Size = new Size(540, 250);
-            dgvJugadores.BackgroundColor = Color.White;
-            dgvJugadores.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+				TabPage tabHistorial = new TabPage("🏆 Historial General");
+				ConfigurarTabHistorial(tabHistorial);
+				tabControl.TabPages.Add(tabHistorial);
+			}
+			else
+			{
+				TabPage tabResultados = new TabPage("🎯 Tus Resultados");
+				ConfigurarTabResultadosSingleplayer(tabResultados);
+				tabControl.TabPages.Add(tabResultados);
 
-            // BOTÓN CERRAR
-            btnCerrar = new Button();
-            btnCerrar.Text = "Cerrar";
-            btnCerrar.Location = new Point(240, 370);
-            btnCerrar.Size = new Size(100, 40);
-            btnCerrar.BackColor = Color.FromArgb(244, 67, 54);
-            btnCerrar.ForeColor = Color.White;
-            btnCerrar.FlatStyle = FlatStyle.Flat;
-            btnCerrar.Click += BtnCerrar_Click;
+				TabPage tabHistorial = new TabPage("🏆 Historial General");
+				ConfigurarTabHistorial(tabHistorial);
+				tabControl.TabPages.Add(tabHistorial);
+			}
 
-            // AGREGAR CONTROLES
-            this.Controls.Add(lblResultado);
-            this.Controls.Add(txtMensaje);
-            this.Controls.Add(dgvJugadores);
-            this.Controls.Add(btnCerrar);
+			this.Controls.Add(tabControl);
 
-            // EVENTO LOAD
-            this.Load += Resultados_Load;
-        }
+			btnCerrar = new Button();
+			btnCerrar.Text = "Cerrar";
+			btnCerrar.Location = new Point(270, 470);
+			btnCerrar.Size = new Size(140, 40);
+			btnCerrar.BackColor = Color.FromArgb(244, 67, 54);
+			btnCerrar.ForeColor = Color.White;
+			btnCerrar.FlatStyle = FlatStyle.Flat;
+			btnCerrar.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+			btnCerrar.Click += (s, e) => { this.Close(); };
+			this.Controls.Add(btnCerrar);
 
-        // 🔹 MOSTRAR PUNTAJE
-        private void MostrarResultado()
-        {
-            lblResultado.Text = $"Puntaje: {puntaje} / {total}";
-        }
+			this.Load += (s, e) => { if (!esMultijugador) MostrarResultadoSingleplayer(); };
+		}
 
-        // 🔹 MENSAJE
-        private void MostrarMensaje()
-        {
-            double porcentaje = (double)puntaje / total * 100;
+		private void ConfigurarTabPartidaActual(TabPage tab)
+		{
+			tab.BackColor = Color.FromArgb(45, 45, 60);
 
-            if (porcentaje >= 80)
-                txtMensaje.Text = "🔥 Excelente! Eres un pro del quiz";
-            else if (porcentaje >= 50)
-                txtMensaje.Text = "👍 Bien hecho, pero puedes mejorar";
-            else
-                txtMensaje.Text = "😅 Necesitas practicar más";
-        }
+			Label lblTitulo = new Label()
+			{
+				Text = "🏆 RESULTADOS DE LA PARTIDA 🏆",
+				Location = new Point(20, 15),
+				Size = new Size(600, 35),
+				Font = new Font("Segoe UI", 14, FontStyle.Bold),
+				ForeColor = Color.FromArgb(255, 215, 0),
+				TextAlign = ContentAlignment.MiddleCenter
+			};
+			tab.Controls.Add(lblTitulo);
 
-        // 🔹 CARGAR HISTORIAL
-        private void CargarJugadores()
-        {
-            try
-            {
-                using (MySqlConnection conn = new MySqlConnection(connStr))
-                {
-                    conn.Open();
+			DataGridView dgvPartidaActual = new DataGridView()
+			{
+				Location = new Point(20, 60),
+				Size = new Size(580, 300),
+				BackgroundColor = Color.White,
+				AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+				AllowUserToAddRows = false,
+				ReadOnly = true,
+				RowHeadersVisible = false
+			};
 
-                    string query = @"
+			dgvPartidaActual.ColumnCount = 4;
+			dgvPartidaActual.Columns[0].Name = "Puesto";
+			dgvPartidaActual.Columns[1].Name = "Jugador";
+			dgvPartidaActual.Columns[2].Name = "Puntaje";
+			dgvPartidaActual.Columns[3].Name = "Medalla";
+			dgvPartidaActual.Columns[0].Width = 60;
+			dgvPartidaActual.Columns[1].Width = 180;
+			dgvPartidaActual.Columns[2].Width = 100;
+			dgvPartidaActual.Columns[3].Width = 80;
+
+			var jugadoresOrdenados = ((System.Collections.IEnumerable)resultadosMultijugador)
+				.Cast<dynamic>()
+				.OrderByDescending(j => (int)j.puntaje)
+				.ToList();
+
+			int puesto = 1;
+			foreach (var jugador in jugadoresOrdenados)
+			{
+				string nombre = jugador.nombre.ToString();
+				int puntajeJugador = (int)jugador.puntaje;
+				string medalla = puesto == 1 ? "🥇" : (puesto == 2 ? "🥈" : (puesto == 3 ? "🥉" : $"#{puesto}"));
+
+				DataGridViewRow row = new DataGridViewRow();
+				row.CreateCells(dgvPartidaActual, puesto, nombre, puntajeJugador, medalla);
+
+				if (nombre == jugadorActual)
+				{
+					row.DefaultCellStyle.BackColor = Color.FromArgb(0, 120, 215);
+					row.DefaultCellStyle.ForeColor = Color.White;
+					row.DefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+				}
+
+				dgvPartidaActual.Rows.Add(row);
+				puesto++;
+			}
+
+			tab.Controls.Add(dgvPartidaActual);
+
+			var ganador = jugadoresOrdenados.First();
+			Label lblGanador = new Label()
+			{
+				Text = $"👑 GANADOR: {ganador.nombre} con {ganador.puntaje} puntos! 👑",
+				Location = new Point(20, 380),
+				Size = new Size(580, 40),
+				Font = new Font("Segoe UI", 12, FontStyle.Bold),
+				ForeColor = Color.FromArgb(76, 175, 80),
+				TextAlign = ContentAlignment.MiddleCenter,
+				BackColor = Color.FromArgb(60, 60, 80)
+			};
+			tab.Controls.Add(lblGanador);
+		}
+
+		private void ConfigurarTabTuRendimiento(TabPage tab)
+		{
+			tab.BackColor = Color.FromArgb(45, 45, 60);
+
+			Label lblJugador = new Label()
+			{
+				Text = $"Jugador: {jugadorActual}",
+				Location = new Point(20, 20),
+				Size = new Size(580, 30),
+				Font = new Font("Segoe UI", 12, FontStyle.Bold),
+				ForeColor = Color.White
+			};
+			tab.Controls.Add(lblJugador);
+
+			var jugadorInfo = ((System.Collections.IEnumerable)resultadosMultijugador)
+				.Cast<dynamic>()
+				.FirstOrDefault(j => j.nombre.ToString() == jugadorActual);
+
+			if (jugadorInfo != null)
+			{
+				int puntajeObtenido = (int)jugadorInfo.puntaje;
+				int totalPreguntas = (int)jugadorInfo.total_preguntas;
+				double porcentaje = totalPreguntas > 0 ? (double)puntajeObtenido / totalPreguntas * 100 : 0;
+
+				Panel panelStats = new Panel()
+				{
+					Location = new Point(20, 60),
+					Size = new Size(580, 200),
+					BackColor = Color.FromArgb(60, 60, 80)
+				};
+
+				Label lblPuntaje = new Label()
+				{
+					Text = $"⭐ Puntaje: {puntajeObtenido} / {totalPreguntas}",
+					Location = new Point(20, 20),
+					Size = new Size(540, 35),
+					Font = new Font("Segoe UI", 14, FontStyle.Bold),
+					ForeColor = Color.FromArgb(255, 215, 0)
+				};
+				panelStats.Controls.Add(lblPuntaje);
+
+				Label lblPorcentaje = new Label()
+				{
+					Text = $"📊 Porcentaje: {porcentaje:F1}%",
+					Location = new Point(20, 65),
+					Size = new Size(540, 30),
+					Font = new Font("Segoe UI", 12),
+					ForeColor = Color.White
+				};
+				panelStats.Controls.Add(lblPorcentaje);
+
+				ProgressBar progressBar = new ProgressBar()
+				{
+					Location = new Point(20, 105),
+					Size = new Size(540, 30),
+					Minimum = 0,
+					Maximum = 100,
+					Value = (int)porcentaje,
+					Style = ProgressBarStyle.Continuous
+				};
+				panelStats.Controls.Add(progressBar);
+
+				string mensaje = porcentaje >= 80 ? "🔥 ¡Excelente! Eres un campeón!" :
+								(porcentaje >= 60 ? "👍 ¡Bien hecho! Sigue mejorando." :
+								(porcentaje >= 40 ? "📚 Puedes hacerlo mejor." : "😅 ¡No te rindas!"));
+
+				Label lblMensaje = new Label()
+				{
+					Location = new Point(20, 150),
+					Size = new Size(540, 40),
+					Font = new Font("Segoe UI", 10, FontStyle.Italic),
+					ForeColor = Color.LightGreen,
+					Text = mensaje
+				};
+				panelStats.Controls.Add(lblMensaje);
+
+				tab.Controls.Add(panelStats);
+			}
+		}
+
+		private void ConfigurarTabResultadosSingleplayer(TabPage tab)
+		{
+			tab.BackColor = Color.FromArgb(45, 45, 60);
+
+			lblResultado = new Label()
+			{
+				Location = new Point(20, 20),
+				AutoSize = true,
+				Font = new Font("Segoe UI", 16, FontStyle.Bold),
+				ForeColor = Color.White
+			};
+			tab.Controls.Add(lblResultado);
+
+			txtMensaje = new Label()
+			{
+				Location = new Point(20, 60),
+				AutoSize = true,
+				Font = new Font("Segoe UI", 12, FontStyle.Italic),
+				ForeColor = Color.LightGreen
+			};
+			tab.Controls.Add(txtMensaje);
+		}
+
+		private void ConfigurarTabHistorial(TabPage tab)
+		{
+			tab.BackColor = Color.FromArgb(45, 45, 60);
+
+			Label lblTitulo = new Label()
+			{
+				Text = "📜 HISTORIAL DE JUGADORES 📜",
+				Location = new Point(20, 15),
+				Size = new Size(600, 30),
+				Font = new Font("Segoe UI", 12, FontStyle.Bold),
+				ForeColor = Color.FromArgb(255, 215, 0),
+				TextAlign = ContentAlignment.MiddleCenter
+			};
+			tab.Controls.Add(lblTitulo);
+
+			dgvJugadores = new DataGridView()
+			{
+				Location = new Point(20, 55),
+				Size = new Size(580, 310),
+				BackgroundColor = Color.White,
+				AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+				AllowUserToAddRows = false,
+				ReadOnly = true
+			};
+			tab.Controls.Add(dgvJugadores);
+
+			CargarHistorialGeneral();
+		}
+
+		private void MostrarResultadoSingleplayer()
+		{
+			if (lblResultado != null)
+				lblResultado.Text = $"Puntaje: {puntaje} / {total}";
+
+			if (txtMensaje != null && total > 0)
+			{
+				double porcentaje = (double)puntaje / total * 100;
+				if (porcentaje >= 80)
+					txtMensaje.Text = "🔥 Excelente! Eres un pro del quiz";
+				else if (porcentaje >= 50)
+					txtMensaje.Text = "👍 Bien hecho, pero puedes mejorar";
+				else
+					txtMensaje.Text = "😅 Necesitas practicar más";
+			}
+		}
+
+		private void CargarHistorialGeneral()
+		{
+			try
+			{
+				using (MySqlConnection conn = new MySqlConnection(connStr))
+				{
+					conn.Open();
+
+					string query = @"
                         SELECT 
                             j.nombre AS Jugador,
-                            pj.puntaje AS Puntaje,
-                            pj.aciertos AS Aciertos,
-                            pj.errores AS Errores
+                            MAX(pj.puntaje) AS Mejor_Puntaje,
+                            COUNT(pj.id_partida) AS Partidas_Jugadas,
+                            ROUND(AVG(pj.puntaje), 1) AS Promedio
                         FROM partida_jugadores pj
                         JOIN jugadores j ON pj.id_jugador = j.id_jugador
-                        ORDER BY pj.puntaje DESC;
+                        GROUP BY j.id_jugador, j.nombre
+                        ORDER BY Mejor_Puntaje DESC
+                        LIMIT 20;
                     ";
 
-                    MySqlDataAdapter da = new MySqlDataAdapter(query, conn);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
+					MySqlDataAdapter da = new MySqlDataAdapter(query, conn);
+					DataTable dt = new DataTable();
+					da.Fill(dt);
 
-                    dgvJugadores.DataSource = dt;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error al cargar resultados: " + ex.Message);
-            }
-        }
-
-        private void BtnCerrar_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-    }
+					if (dgvJugadores != null)
+						dgvJugadores.DataSource = dt;
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Error al cargar historial: " + ex.Message);
+			}
+		}
+	}
 }
