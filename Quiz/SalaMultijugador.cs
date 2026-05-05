@@ -25,6 +25,7 @@ namespace Quiz
 		private NetworkStream stream;
 		private Thread hiloEscucha;
 		private bool partidaIniciada = false;
+		private string categoriaSeleccionada = "";
 
 		public SalaMultijugador()
 		{
@@ -43,8 +44,9 @@ namespace Quiz
 
 		private void InicializarUI()
 		{
-			this.Text = "Lobby";
+			this.Text = "Lobby - Esperando jugadores";
 			this.Size = new Size(500, 400);
+			this.FormClosing += SalaMultijugador_FormClosing;
 
 			lblEstadoGeneral = new Label()
 			{
@@ -132,6 +134,15 @@ namespace Quiz
 			this.Controls.Add(btnListo);
 		}
 
+		private void SalaMultijugador_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			// Asegurar que se cierra la conexión
+			if (cliente != null && cliente.Connected)
+			{
+				EnviarMensaje(new { tipo = "leave", nombre = Inicio.nombreJugadorGlobal });
+			}
+		}
+
 		private void ActualizarLobby()
 		{
 			for (int i = 0; i < paneles.Count; i++)
@@ -144,22 +155,35 @@ namespace Quiz
 				{
 					var j = jugadores[i];
 					lblNombre.Text = j.Nombre;
-					lblEstado.Text = j.Listo ? "Listo" : "No listo";
+					lblEstado.Text = j.Listo ? "✓ Listo" : "○ No listo";
 					lblEstado.ForeColor = j.Listo ? Color.Green : Color.Red;
 				}
 				else
 				{
-					lblNombre.Text = "Vacío";
+					lblNombre.Text = "⚫ Vacío";
 					lblEstado.Text = "-";
 					lblEstado.ForeColor = Color.Black;
 				}
 			}
 
-			bool todosListos = jugadores.Count > 0 && jugadores.All(j => j.Listo);
+			bool todosListos = jugadores.Count >= 2 && jugadores.All(j => j.Listo);
 
-			lblEstadoGeneral.Text = todosListos
-				? "Todos listos ✅ Iniciando partida..."
-				: "Esperando jugadores o listos...";
+			if (todosListos && !partidaIniciada)
+			{
+				lblEstadoGeneral.Text = "✅ ¡Todos listos! Iniciando partida...";
+				lblEstadoGeneral.ForeColor = Color.Green;
+			}
+			else if (jugadores.Count < 2)
+			{
+				lblEstadoGeneral.Text = $"⏳ Esperando más jugadores... ({jugadores.Count}/2 mínimo)";
+				lblEstadoGeneral.ForeColor = Color.Yellow;
+			}
+			else
+			{
+				int listos = jugadores.Count(j => j.Listo);
+				lblEstadoGeneral.Text = $"🎮 Jugadores listos: {listos}/{jugadores.Count}";
+				lblEstadoGeneral.ForeColor = Color.White;
+			}
 		}
 
 		private void ConectarAlServidor(string ip)
@@ -179,6 +203,8 @@ namespace Quiz
 				hiloEscucha = new Thread(EscucharServidor);
 				hiloEscucha.IsBackground = true;
 				hiloEscucha.Start();
+
+				Console.WriteLine($"Conectado al servidor {ip}:5000");
 			}
 			catch (Exception ex)
 			{
@@ -198,9 +224,12 @@ namespace Quiz
 					if (bytes == 0) break;
 
 					string json = Encoding.UTF8.GetString(buffer, 0, bytes);
-					dynamic data = JsonConvert.DeserializeObject(json);
+					Console.WriteLine($"Mensaje del servidor: {json}"); // DEBUG
 
-					if (data.tipo == "lobby_update")
+					dynamic data = JsonConvert.DeserializeObject(json);
+					string tipo = data.tipo.ToString();
+
+					if (tipo == "lobby_update")
 					{
 						this.Invoke((MethodInvoker)delegate {
 							jugadores.Clear();
@@ -215,25 +244,50 @@ namespace Quiz
 							ActualizarLobby();
 						});
 					}
-					else if (data.tipo == "iniciar_partida")
+					else if (tipo == "iniciar_partida")
 					{
 						if (!partidaIniciada)
 						{
 							partidaIniciada = true;
-							string categoria = data.categoria.ToString();
+							categoriaSeleccionada = data.categoria.ToString();
+
+							Console.WriteLine($"🎮 ¡Partida iniciada! Categoría: {categoriaSeleccionada}");
+
+							// Pequeña pausa para que el servidor se prepare
+							Thread.Sleep(500);
 
 							this.Invoke((MethodInvoker)delegate {
-								Preguntas ventanaPreguntas = new Preguntas(categoria, Inicio.nombreJugadorGlobal, cliente);
+								// ABRIR PREGUNTAS SOLO CUANDO EL SERVIDOR LO ORDENA
+								this.Hide(); // Ocultar el lobby
+
+								Preguntas ventanaPreguntas = new Preguntas(categoriaSeleccionada, Inicio.nombreJugadorGlobal, cliente);
+								ventanaPreguntas.FormClosed += (s, args) => {
+									// Cuando se cierran las preguntas, volver al lobby o cerrar
+									this.Close();
+								};
 								ventanaPreguntas.Show();
-								this.Hide();
 							});
 						}
+					}
+					else if (tipo == "error")
+					{
+						this.Invoke((MethodInvoker)delegate {
+							MessageBox.Show(data.mensaje.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						});
+						break;
 					}
 				}
 			}
 			catch (Exception ex)
 			{
 				Console.WriteLine($"Error en escucha: {ex.Message}");
+			}
+			finally
+			{
+				if (cliente != null && cliente.Connected)
+				{
+					cliente.Close();
+				}
 			}
 		}
 
@@ -244,6 +298,7 @@ namespace Quiz
 				string json = JsonConvert.SerializeObject(obj);
 				byte[] data = Encoding.UTF8.GetBytes(json);
 				stream.Write(data, 0, data.Length);
+				Console.WriteLine($"Enviado: {json}"); // DEBUG
 			}
 			catch (Exception ex)
 			{
