@@ -295,7 +295,7 @@ namespace Quiz
 			{
 				Console.WriteLine($"Error al enviar mensaje: {ex.Message}");
 			}
-		}
+	}
 
 
 	}

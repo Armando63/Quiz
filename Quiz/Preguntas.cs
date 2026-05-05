@@ -130,11 +130,13 @@ namespace Quiz
 		{
 			var categorias = new Dictionary<string, int>
 			{
-				{ "General", 1 },
-				{ "Geografía", 2 },
-				{ "Historia", 3 },
-				{ "Ciencia", 4 },
-				{ "Deportes", 5 }
+				{ "Desastres Naturales", 1 },
+				{ "Deportes", 2 },
+				{ "Musica", 3 },
+				{ "Videojuegos", 4 },
+				{ "Anima", 5 },
+				{ "Peliculas", 6 },
+				{ "Fauna", 7 }
 			};
 			return categorias.ContainsKey(categoria) ? categorias[categoria] : 1;
 		}
