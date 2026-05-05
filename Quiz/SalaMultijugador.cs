@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Net.Sockets;
+using System.Text;
+using Newtonsoft.Json;
+using System.Threading;
 
 namespace Quiz
 {
@@ -17,10 +21,14 @@ namespace Quiz
 		private List<Jugador> jugadores = new List<Jugador>();
 		private List<Panel> paneles = new List<Panel>();
 		private Label lblEstadoGeneral;
+		TcpClient cliente;
+		NetworkStream stream;
+		Thread hiloEscucha;
 
 		public SalaMultijugador()
 		{
 			InitializeComponent();
+			ConectarAlServidor("192.168.0.18"); // 👈 CAMBIA POR TU IP
 			InicializarUI();
 
 			// Agregar SOLO al jugador actual
@@ -109,8 +117,15 @@ namespace Quiz
 
 			btnListo.Click += (s, e) =>
 			{
-				jugadores[0].Listo = !jugadores[0].Listo;
-				ActualizarLobby();
+				bool nuevoEstado = !jugadores
+					.First(j => j.Nombre == Inicio.nombreJugadorGlobal).Listo;
+
+				EnviarMensaje(new
+				{
+					tipo = "ready",
+					nombre = Inicio.nombreJugadorGlobal,
+					listo = nuevoEstado
+				});
 			};
 
 			this.Controls.Add(btnListo);
@@ -166,5 +181,70 @@ namespace Quiz
 
 			ActualizarLobby();
 		}
+		private void ConectarAlServidor(string ip)
+		{
+			cliente = new TcpClient();
+			cliente.Connect(ip, 5000);
+
+			stream = cliente.GetStream();
+
+			// Enviar JOIN
+			EnviarMensaje(new
+			{
+				tipo = "join",
+				nombre = Inicio.nombreJugadorGlobal
+			});
+
+			// Iniciar escucha
+			hiloEscucha = new Thread(EscucharServidor);
+			hiloEscucha.IsBackground = true;
+			hiloEscucha.Start();
+		}
+
+		private void EscucharServidor()
+		{
+			byte[] buffer = new byte[1024];
+
+			try
+			{
+				while (true)
+				{
+					int bytes = stream.Read(buffer, 0, buffer.Length);
+					if (bytes == 0) break;
+
+					string json = Encoding.UTF8.GetString(buffer, 0, bytes);
+
+					dynamic data = JsonConvert.DeserializeObject(json);
+
+					if (data.tipo == "lobby_update")
+					{
+						this.Invoke((MethodInvoker)delegate {
+
+							jugadores.Clear();
+
+							foreach (var j in data.jugadores)
+							{
+								jugadores.Add(new Jugador
+								{
+									Nombre = j.nombre.ToString(),
+									Listo = j.listo
+								});
+							}
+
+							ActualizarLobby();
+						});
+					}
+				}
+			}
+			catch { }
+		}
+
+		private void EnviarMensaje(object obj)
+		{
+			string json = JsonConvert.SerializeObject(obj);
+			byte[] data = Encoding.UTF8.GetBytes(json);
+			stream.Write(data, 0, data.Length);
+		}
+
 	}
 }
