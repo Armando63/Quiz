@@ -162,15 +162,21 @@ namespace Quiz
 						string json = Encoding.UTF8.GetString(buffer, 0, bytes);
 						dynamic data = JsonConvert.DeserializeObject(json);
 
-						if (data.tipo == "siguiente_pregunta")
+						Console.WriteLine($"Mensaje recibido: {data.tipo}"); // DEBUG
+
+						if (data.tipo == "iniciar_partida")
+						{
+							// Esto ya debería funcionar
+							string categoria = data.categoria.ToString();
+							this.Invoke((MethodInvoker)delegate {
+								// Ya está en el formulario de preguntas
+							});
+						}
+						else if (data.tipo == "siguiente_pregunta")
 						{
 							this.Invoke((MethodInvoker)delegate {
-								if (!esperandoSiguientePregunta)
-								{
-									esperandoSiguientePregunta = true;
-									lblEstado.Visible = false;
-									SiguientePregunta();
-								}
+								lblEstado.Visible = false;
+								SiguientePregunta();
 							});
 						}
 						else if (data.tipo == "fin_partida")
@@ -185,7 +191,7 @@ namespace Quiz
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error en escucha servidor: {ex.Message}");
+				Console.WriteLine($"Error en escucha: {ex.Message}");
 			}
 		}
 
