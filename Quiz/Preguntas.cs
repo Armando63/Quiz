@@ -110,7 +110,6 @@ namespace Quiz
 			areasOpciones = new Rectangle[4];
 			opcionAudioActual = -1;
 
-			// Crear Label de estado
 			lblEstado = new Label()
 			{
 				Visible = false,
@@ -148,6 +147,8 @@ namespace Quiz
 			hiloEscuchaServidor.Start();
 		}
 
+		private string bufferMensajes = "";
+
 		private void EscucharServidor()
 		{
 			byte[] buffer = new byte[4096];
@@ -157,37 +158,56 @@ namespace Quiz
 				while (partidaActiva)
 				{
 					int bytes = streamServidor.Read(buffer, 0, buffer.Length);
-					if (bytes == 0) break;
 
-					string json = Encoding.UTF8.GetString(buffer, 0, bytes);
-					dynamic data = JsonConvert.DeserializeObject(json);
+					if (bytes <= 0)
+						break;
 
-					Console.WriteLine($"Mensaje recibido: {data.tipo}");
+					bufferMensajes += Encoding.UTF8.GetString(buffer, 0, bytes);
 
-					if (data.tipo == "siguiente_pregunta")
+					while (bufferMensajes.Contains("\n"))
 					{
-						this.Invoke((MethodInvoker)delegate {
-							lblEstado.Visible = false;
-							SiguientePregunta();
-						});
-					}
-					else if (data.tipo == "fin_partida")
-					{
-						this.Invoke((MethodInvoker)delegate {
-							FinalizarQuizMultijugador(data.puntajes);
-						});
+						int index = bufferMensajes.IndexOf("\n");
+
+						string linea = bufferMensajes.Substring(0, index).Trim();
+
+						bufferMensajes = bufferMensajes.Substring(index + 1);
+
+						if (string.IsNullOrWhiteSpace(linea))
+							continue;
+
+						dynamic data = JsonConvert.DeserializeObject(linea);
+
+						string tipo = data.tipo.ToString();
+
+						if (tipo == "siguiente_pregunta")
+						{
+							this.Invoke((MethodInvoker)delegate
+							{
+								lblEstado.Visible = false;
+								// CORRECCIÓN #3: Usar SiguientePregunta solo si estamos esperando
+								SiguientePregunta();
+							});
+						}
+						else if (tipo == "fin_partida")
+						{
+							this.Invoke((MethodInvoker)delegate
+							{
+								FinalizarQuizMultijugador(data.puntajes);
+							});
+						}
 					}
 				}
 			}
-			catch (Exception ex)
+			catch
 			{
-				Console.WriteLine($"Error en escucha: {ex.Message}");
+				// Hilo terminado limpiamente
 			}
 		}
 
 		private void EnviarRespuestaAlServidor(int indiceOpcion, bool esCorrecta)
 		{
-			if (!esMultijugador) return;
+			if (!esMultijugador)
+				return;
 
 			try
 			{
@@ -196,18 +216,18 @@ namespace Quiz
 					tipo = "respuesta",
 					jugador = nombreJugador,
 					pregunta_index = indiceActual,
-					respuesta = indiceOpcion,
 					correcta = esCorrecta,
 					puntaje_actual = puntaje
 				};
 
-				string json = JsonConvert.SerializeObject(mensaje);
+				string json = JsonConvert.SerializeObject(mensaje) + "\n";
+
 				byte[] data = Encoding.UTF8.GetBytes(json);
+
 				streamServidor.Write(data, 0, data.Length);
 			}
-			catch (Exception ex)
+			catch
 			{
-				Console.WriteLine($"Error al enviar respuesta: {ex.Message}");
 			}
 		}
 
@@ -249,11 +269,15 @@ namespace Quiz
 			CargarSiguientePregunta();
 		}
 
+		// CORRECCIÓN #5: IP de la API configurable desde SalaMultijugador
+		// En modo individual se queda en 127.0.0.1; en multijugador se asigna la IP del host
+		public static string IpServidorApi = "127.0.0.1";
+
 		private async Task CargarPreguntas()
 		{
 			using (HttpClient client = new HttpClient())
 			{
-				string url = $"http://127.0.0.1:8000/preguntas?categoria={categoriaId}";
+				string url = $"http://{IpServidorApi}:8000/preguntas?categoria={categoriaId}";
 
 				try
 				{
@@ -314,8 +338,13 @@ namespace Quiz
 			Invalidate();
 		}
 
+		// CORRECCIÓN #3: SiguientePregunta ahora usa el guard esperandoSiguientePregunta
 		private void SiguientePregunta()
 		{
+			if (!esperandoSiguientePregunta)
+				return;
+
+			esperandoSiguientePregunta = false;
 			indiceActual++;
 			CargarSiguientePregunta();
 		}
@@ -684,6 +713,9 @@ namespace Quiz
 			}
 			else
 			{
+				// CORRECCIÓN #3: Marcar que estamos esperando al servidor
+				// para que SiguientePregunta() solo avance cuando el servidor lo indique
+				esperandoSiguientePregunta = true;
 				lblEstado.Text = "Esperando a otros jugadores...";
 				lblEstado.Visible = true;
 			}
@@ -735,12 +767,11 @@ namespace Quiz
 			Resultados frm = new Resultados(puntajes, nombreJugador, puntaje);
 			frm.Show();
 
-			if (streamServidor != null)
-				streamServidor.Close();
-			if (clienteServidor != null)
-				clienteServidor.Close();
-
 			partidaActiva = false;
+
+			try { streamServidor?.Close(); } catch { }
+			try { clienteServidor?.Close(); } catch { }
+
 			this.Close();
 		}
 
@@ -784,15 +815,15 @@ namespace Quiz
 			}
 		}
 
+		// CORRECCIÓN #4: partidaActiva = false ANTES de cerrar streams
+		// para evitar race condition en el hilo de escucha
 		private void Preguntas_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			reproductor.controls.stop();
 			partidaActiva = false;
+			reproductor.controls.stop();
 
-			if (streamServidor != null)
-				streamServidor.Close();
-			if (clienteServidor != null)
-				clienteServidor.Close();
+			try { streamServidor?.Close(); } catch { }
+			try { clienteServidor?.Close(); } catch { }
 		}
 
 		public class ApiPregunta

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Text;
-using Newtonsoft.Json;
 using System.Threading;
+using System.Windows.Forms;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Quiz
 {
@@ -20,63 +21,72 @@ namespace Quiz
 
 		private List<Jugador> jugadores = new List<Jugador>();
 		private List<Panel> paneles = new List<Panel>();
+
 		private Label lblEstadoGeneral;
+
 		private TcpClient cliente;
 		private NetworkStream stream;
 		private Thread hiloEscucha;
-		private bool partidaIniciada = false;
-		private string categoriaSeleccionada = "";
-		private bool escuchando = true;
 
-		public SalaMultijugador()
+		private bool escuchando = true;
+		private bool partidaIniciada = false;
+
+		private string bufferMensajes = "";
+
+		private string ipServidor;
+
+		// Acepta la IP del servidor como parámetro
+		public SalaMultijugador(string ip = "127.0.0.1")
 		{
 			InitializeComponent();
-			ConectarAlServidor("10.103.150.143"); // 👈 CAMBIA POR TU IP
+
+			ipServidor = ip;
+
+			// CORRECCIÓN #5: Informar a Preguntas.cs la IP donde está la API
+			Preguntas.IpServidorApi = ipServidor;
+
 			InicializarUI();
-
-			jugadores.Add(new Jugador
-			{
-				Nombre = Inicio.nombreJugadorGlobal,
-				Listo = false
-			});
-
-			ActualizarLobby();
+			ConectarAlServidor(ipServidor);
 		}
 
 		private void InicializarUI()
 		{
-			this.Text = "Lobby - Esperando jugadores";
-			this.Size = new Size(500, 400);
+			this.Text = "Sala Multijugador";
+			this.Size = new Size(550, 430);
+			this.StartPosition = FormStartPosition.CenterScreen;
+			this.BackColor = Color.FromArgb(30, 30, 45);
 			this.FormClosing += SalaMultijugador_FormClosing;
 
 			lblEstadoGeneral = new Label()
 			{
 				Text = "Esperando jugadores...",
-				AutoSize = false,
-				Width = 400,
-				Height = 30,
-				Location = new Point(50, 20),
+				Width = 450,
+				Height = 35,
+				Location = new Point(40, 20),
 				TextAlign = ContentAlignment.MiddleCenter,
-				Font = new Font("Arial", 12, FontStyle.Bold)
+				Font = new Font("Segoe UI", 12, FontStyle.Bold),
+				ForeColor = Color.White
 			};
 
+			// CORRECCIÓN #2: Eliminada la línea duplicada this.Controls.Add(lblEstadoGeneral)
 			this.Controls.Add(lblEstadoGeneral);
 
 			for (int i = 0; i < 4; i++)
 			{
-				Panel p = new Panel()
+				Panel panel = new Panel()
 				{
-					Size = new Size(400, 50),
-					Location = new Point(50, 70 + (i * 60)),
-					BackColor = Color.LightGray,
-					Tag = i
+					Size = new Size(450, 55),
+					Location = new Point(40, 70 + (i * 65)),
+					BackColor = Color.FromArgb(50, 50, 70)
 				};
 
 				Label lblNombre = new Label()
 				{
 					Name = "lblNombre",
 					Text = "Vacío",
-					Location = new Point(10, 15),
+					ForeColor = Color.White,
+					Font = new Font("Segoe UI", 11, FontStyle.Bold),
+					Location = new Point(15, 15),
 					AutoSize = true
 				};
 
@@ -84,107 +94,65 @@ namespace Quiz
 				{
 					Name = "lblEstado",
 					Text = "No listo",
-					Location = new Point(300, 15),
+					ForeColor = Color.Red,
+					Font = new Font("Segoe UI", 10, FontStyle.Bold),
+					Location = new Point(320, 15),
 					AutoSize = true
 				};
 
-				p.Controls.Add(lblNombre);
-				p.Controls.Add(lblEstado);
+				panel.Controls.Add(lblNombre);
+				panel.Controls.Add(lblEstado);
 
-				paneles.Add(p);
-				this.Controls.Add(p);
+				paneles.Add(panel);
+				this.Controls.Add(panel);
 			}
-
-			Button btnSalir = new Button()
-			{
-				Text = "Regresar",
-				Size = new Size(120, 35),
-				Location = new Point(180, 320),
-				BackColor = Color.LightCoral
-			};
-
-			btnSalir.Click += (s, e) =>
-			{
-				EnviarMensaje(new { tipo = "leave", nombre = Inicio.nombreJugadorGlobal });
-				Thread.Sleep(100);
-				this.Close();
-			};
-
-			this.Controls.Add(btnSalir);
 
 			Button btnListo = new Button()
 			{
-				Text = "Listo",
-				Size = new Size(120, 35),
-				Location = new Point(50, 320),
-				BackColor = Color.LightGreen
+				Text = "LISTO",
+				Size = new Size(180, 40),
+				Location = new Point(40, 340),
+				BackColor = Color.FromArgb(76, 175, 80),
+				ForeColor = Color.White,
+				FlatStyle = FlatStyle.Flat,
+				Font = new Font("Segoe UI", 11, FontStyle.Bold)
 			};
 
 			btnListo.Click += (s, e) =>
 			{
-				bool nuevoEstado = !jugadores.First(j => j.Nombre == Inicio.nombreJugadorGlobal).Listo;
-
 				EnviarMensaje(new
 				{
 					tipo = "ready",
-					nombre = Inicio.nombreJugadorGlobal,
-					listo = nuevoEstado
+					listo = true
 				});
+
+				btnListo.Enabled = false;
 			};
 
 			this.Controls.Add(btnListo);
-		}
 
-		private void SalaMultijugador_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			// Asegurar que se cierra la conexión
-			if (cliente != null && cliente.Connected)
+			Button btnSalir = new Button()
 			{
-				EnviarMensaje(new { tipo = "leave", nombre = Inicio.nombreJugadorGlobal });
-			}
-		}
+				Text = "SALIR",
+				Size = new Size(180, 40),
+				Location = new Point(310, 340),
+				BackColor = Color.FromArgb(244, 67, 54),
+				ForeColor = Color.White,
+				FlatStyle = FlatStyle.Flat,
+				Font = new Font("Segoe UI", 11, FontStyle.Bold)
+			};
 
-		private void ActualizarLobby()
-		{
-			for (int i = 0; i < paneles.Count; i++)
+			btnSalir.Click += (s, e) =>
 			{
-				var panel = paneles[i];
-				var lblNombre = panel.Controls.Find("lblNombre", true).First() as Label;
-				var lblEstado = panel.Controls.Find("lblEstado", true).First() as Label;
-
-				if (i < jugadores.Count)
+				EnviarMensaje(new
 				{
-					var j = jugadores[i];
-					lblNombre.Text = j.Nombre;
-					lblEstado.Text = j.Listo ? "✓ Listo" : "○ No listo";
-					lblEstado.ForeColor = j.Listo ? Color.Green : Color.Red;
-				}
-				else
-				{
-					lblNombre.Text = "⚫ Vacío";
-					lblEstado.Text = "-";
-					lblEstado.ForeColor = Color.Black;
-				}
-			}
+					tipo = "leave"
+				});
 
-			bool todosListos = jugadores.Count >= 2 && jugadores.All(j => j.Listo);
+				this.Close();
+			};
 
-			if (todosListos && !partidaIniciada)
-			{
-				lblEstadoGeneral.Text = "✅ ¡Todos listos! Iniciando partida...";
-				lblEstadoGeneral.ForeColor = Color.Green;
-			}
-			else if (jugadores.Count < 2)
-			{
-				lblEstadoGeneral.Text = $"⏳ Esperando más jugadores... ({jugadores.Count}/2 mínimo)";
-				lblEstadoGeneral.ForeColor = Color.Yellow;
-			}
-			else
-			{
-				int listos = jugadores.Count(j => j.Listo);
-				lblEstadoGeneral.Text = $"🎮 Jugadores listos: {listos}/{jugadores.Count}";
-				lblEstadoGeneral.ForeColor = Color.White;
-			}
+			this.Controls.Add(btnSalir);
 		}
 
 		private void ConectarAlServidor(string ip)
@@ -193,6 +161,7 @@ namespace Quiz
 			{
 				cliente = new TcpClient();
 				cliente.Connect(ip, 5000);
+
 				stream = cliente.GetStream();
 
 				EnviarMensaje(new
@@ -204,12 +173,10 @@ namespace Quiz
 				hiloEscucha = new Thread(EscucharServidor);
 				hiloEscucha.IsBackground = true;
 				hiloEscucha.Start();
-
-				Console.WriteLine($"Conectado al servidor {ip}:5000");
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show($"Error al conectar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("Error al conectar: " + ex.Message);
 			}
 		}
 
@@ -222,64 +189,112 @@ namespace Quiz
 				while (escuchando)
 				{
 					int bytes = stream.Read(buffer, 0, buffer.Length);
-					if (bytes == 0) break;
 
-					string json = Encoding.UTF8.GetString(buffer, 0, bytes);
-					Console.WriteLine($"Mensaje del servidor: {json}");
+					if (bytes <= 0)
+						break;
 
-					dynamic data = JsonConvert.DeserializeObject(json);
-					string tipo = data.tipo.ToString();
+					bufferMensajes += Encoding.UTF8.GetString(buffer, 0, bytes);
 
-					if (tipo == "lobby_update")
+					while (bufferMensajes.Contains("\n"))
 					{
-						this.Invoke((MethodInvoker)delegate {
-							jugadores.Clear();
-							foreach (var j in data.jugadores)
-							{
-								jugadores.Add(new Jugador
-								{
-									Nombre = j.nombre.ToString(),
-									Listo = j.listo
-								});
-							}
-							ActualizarLobby();
-						});
-					}
-					else if (tipo == "iniciar_partida")
-					{
-						if (!partidaIniciada)
-						{
-							partidaIniciada = true;
-							categoriaSeleccionada = data.categoria.ToString();
+						int index = bufferMensajes.IndexOf("\n");
 
-							Console.WriteLine($"🎮 ¡Partida iniciada! Categoría: {categoriaSeleccionada}");
+						string linea = bufferMensajes.Substring(0, index).Trim();
 
-							// DETENER escucha del lobby
-							escuchando = false;
+						bufferMensajes = bufferMensajes.Substring(index + 1);
 
-							this.Invoke((MethodInvoker)delegate {
-								this.Hide();
+						if (string.IsNullOrWhiteSpace(linea))
+							continue;
 
-								Preguntas ventanaPreguntas = new Preguntas(
-									categoriaSeleccionada,
-									Inicio.nombreJugadorGlobal,
-									cliente
-								);
-
-								ventanaPreguntas.FormClosed += (s, args) => {
-									this.Close();
-								};
-
-								ventanaPreguntas.Show();
-							});
-						}
+						ProcesarMensaje(linea);
 					}
 				}
 			}
-			catch (Exception ex)
+			catch
 			{
-				Console.WriteLine($"Error en escucha: {ex.Message}");
+				// Hilo terminado limpiamente
 			}
+		}
+
+		private void ProcesarMensaje(string json)
+		{
+			JObject data = JObject.Parse(json);
+
+			string tipo = data["tipo"].ToString();
+
+			if (tipo == "lobby_update")
+			{
+				this.Invoke((MethodInvoker)delegate
+				{
+					jugadores.Clear();
+
+					foreach (var jugador in data["jugadores"])
+					{
+						jugadores.Add(new Jugador()
+						{
+							Nombre = jugador["nombre"].ToString(),
+							Listo = (bool)jugador["listo"]
+						});
+					}
+
+					ActualizarLobby();
+				});
+			}
+			else if (tipo == "iniciar_partida")
+			{
+				if (partidaIniciada)
+					return;
+
+				partidaIniciada = true;
+
+				string categoria = data["categoria"].ToString();
+
+				this.Invoke((MethodInvoker)delegate
+				{
+					// Detener escucha DENTRO del Invoke, después de que el form
+					// ya procesó el mensaje, para evitar que el hilo muera antes
+					// de ejecutar el Invoke
+					escuchando = false;
+
+					Preguntas preguntas = new Preguntas(
+						categoria,
+						Inicio.nombreJugadorGlobal,
+						cliente
+					);
+
+					preguntas.Show();
+
+					this.Hide();
+				});
+			}
+		}
+
+		private void ActualizarLobby()
+		{
+			for (int i = 0; i < paneles.Count; i++)
+			{
+				Panel panel = paneles[i];
+
+				Label lblNombre = panel.Controls.Find("lblNombre", true)[0] as Label;
+				Label lblEstado = panel.Controls.Find("lblEstado", true)[0] as Label;
+
+				if (i < jugadores.Count)
+				{
+					lblNombre.Text = jugadores[i].Nombre;
+					lblEstado.Text = jugadores[i].Listo ? "✓ LISTO" : "○ NO LISTO";
+					lblEstado.ForeColor = jugadores[i].Listo ? Color.Lime : Color.Red;
+				}
+				else
+				{
+					lblNombre.Text = "Vacío";
+					lblEstado.Text = "-";
+					lblEstado.ForeColor = Color.White;
+				}
+			}
+
+			int listos = jugadores.Count(j => j.Listo);
+
+			lblEstadoGeneral.Text = $"Jugadores listos: {listos}/{jugadores.Count}";
 		}
 
 		private void EnviarMensaje(object obj)
@@ -287,16 +302,22 @@ namespace Quiz
 			try
 			{
 				string json = JsonConvert.SerializeObject(obj) + "\n";
+
 				byte[] data = Encoding.UTF8.GetBytes(json);
+
 				stream.Write(data, 0, data.Length);
-				Console.WriteLine($"Enviado: {json}");
 			}
-			catch (Exception ex)
+			catch
 			{
-				Console.WriteLine($"Error al enviar mensaje: {ex.Message}");
 			}
-	}
+		}
 
+		private void SalaMultijugador_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			escuchando = false;
 
+			try { stream?.Close(); } catch { }
+			try { cliente?.Close(); } catch { }
+		}
 	}
 }

@@ -4,3 +4,16 @@ obj/
 *.exe
 *.pdb
 packages/
+
+# Archivos de usuario y configuración local de Visual Studio
+*.user
+*.suo
+*.userprefs
+
+# Carpeta de caché de NuGet
+.nuget/
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+*.pyo

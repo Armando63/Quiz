@@ -134,14 +134,17 @@ namespace Quiz
 
 			var jugadoresOrdenados = ((System.Collections.IEnumerable)resultadosMultijugador)
 				.Cast<dynamic>()
-				.OrderByDescending(j => (int)j.puntaje)
+				// CORRECCIÓN: Usar Convert.ToInt32 para evitar RuntimeBinderException
+				// cuando Newtonsoft deserializa el número como long en lugar de int
+				.OrderByDescending(j => Convert.ToInt32(j.puntaje))
 				.ToList();
 
 			int puesto = 1;
 			foreach (var jugador in jugadoresOrdenados)
 			{
 				string nombre = jugador.nombre.ToString();
-				int puntajeJugador = (int)jugador.puntaje;
+				// CORRECCIÓN: Convert.ToInt32 en lugar de cast directo (int)
+				int puntajeJugador = Convert.ToInt32(jugador.puntaje);
 				string medalla = puesto == 1 ? "🥇" : (puesto == 2 ? "🥈" : (puesto == 3 ? "🥉" : $"#{puesto}"));
 
 				DataGridViewRow row = new DataGridViewRow();
@@ -163,7 +166,8 @@ namespace Quiz
 			var ganador = jugadoresOrdenados.First();
 			Label lblGanador = new Label()
 			{
-				Text = $"👑 GANADOR: {ganador.nombre} con {ganador.puntaje} puntos! 👑",
+				// CORRECCIÓN: Convert.ToInt32 también aquí
+				Text = $"👑 GANADOR: {ganador.nombre} con {Convert.ToInt32(ganador.puntaje)} puntos! 👑",
 				Location = new Point(20, 380),
 				Size = new Size(580, 40),
 				Font = new Font("Segoe UI", 12, FontStyle.Bold),
@@ -194,8 +198,9 @@ namespace Quiz
 
 			if (jugadorInfo != null)
 			{
-				int puntajeObtenido = (int)jugadorInfo.puntaje;
-				int totalPreguntas = (int)jugadorInfo.total_preguntas;
+				// CORRECCIÓN: Convert.ToInt32 para evitar error de tipo en dynamic
+				int puntajeObtenido = Convert.ToInt32(jugadorInfo.puntaje);
+				int totalPreguntas = Convert.ToInt32(jugadorInfo.total_preguntas);
 				double porcentaje = totalPreguntas > 0 ? (double)puntajeObtenido / totalPreguntas * 100 : 0;
 
 				Panel panelStats = new Panel()
@@ -231,7 +236,7 @@ namespace Quiz
 					Size = new Size(540, 30),
 					Minimum = 0,
 					Maximum = 100,
-					Value = (int)porcentaje,
+					Value = Math.Min((int)porcentaje, 100), // protección contra valor > 100
 					Style = ProgressBarStyle.Continuous
 				};
 				panelStats.Controls.Add(progressBar);
@@ -251,6 +256,19 @@ namespace Quiz
 				panelStats.Controls.Add(lblMensaje);
 
 				tab.Controls.Add(panelStats);
+			}
+			else
+			{
+				// CORRECCIÓN: Manejar el caso en que el jugador no se encuentre en los resultados
+				Label lblNoEncontrado = new Label()
+				{
+					Text = "No se encontraron datos de tu rendimiento.",
+					Location = new Point(20, 60),
+					Size = new Size(580, 30),
+					Font = new Font("Segoe UI", 11),
+					ForeColor = Color.LightCoral
+				};
+				tab.Controls.Add(lblNoEncontrado);
 			}
 		}
 

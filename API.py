@@ -7,7 +7,6 @@ from typing import Optional
 
 app = FastAPI()
 
-# Permitir CORS para conexiones desde C#
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -44,12 +43,9 @@ def conexion():
 
 @app.get("/categorias")
 def obtener_categorias():
-    """Endpoint para obtener todas las categorías disponibles"""
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
-    
     try:
-        # Verificar si existe tabla categorias, si no, devolver categorías predefinidas
         try:
             cursor.execute("SELECT id_categoria as id, nombre FROM categorias ORDER BY nombre")
             categorias = cursor.fetchall()
@@ -57,14 +53,14 @@ def obtener_categorias():
                 return categorias
         except:
             pass
-        
-        # Si no hay tabla categorias, devolver categorías predefinidas
         return [
-            {"id": 1, "nombre": "General"},
-            {"id": 2, "nombre": "Geografía"},
-            {"id": 3, "nombre": "Historia"},
-            {"id": 4, "nombre": "Ciencia"},
-            {"id": 5, "nombre": "Deportes"}
+            {"id": 1, "nombre": "Desastres Naturales"},
+            {"id": 2, "nombre": "Deportes"},
+            {"id": 3, "nombre": "Musica"},
+            {"id": 4, "nombre": "Videojuegos"},
+            {"id": 5, "nombre": "Anima"},
+            {"id": 6, "nombre": "Peliculas"},
+            {"id": 7, "nombre": "Fauna"}
         ]
     except Exception as e:
         print(f"Error al obtener categorías: {e}")
@@ -77,17 +73,10 @@ def obtener_categorias():
 def obtener_preguntas(
     categoria: Optional[int] = Query(None, description="ID de la categoría para filtrar")
 ):
-    """
-    Endpoint para obtener preguntas.
-    - Si se especifica categoria, devuelve solo las preguntas de esa categoría
-    - Si no se especifica, devuelve todas las preguntas
-    """
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
-    
+
     try:
-        # Construir la consulta con o sin filtro
-        # CORREGIDO: Usar la estructura de tu base de datos (quiz_bd)
         if categoria:
             query = """
             SELECT 
@@ -115,50 +104,46 @@ def obtener_preguntas(
             ORDER BY p.id_pregunta;
             """
             cursor.execute(query)
-        
+
         filas = cursor.fetchall()
-        
+
         if not filas:
-            # Si no hay preguntas, devolver lista vacía
             print("⚠️ No se encontraron preguntas en la base de datos")
             return []
-        
+
         print(f"📚 Se encontraron {len(filas)} opciones en la base de datos")
-        
-        # Agrupar por pregunta
+
         preguntas = {}
-        
+
         for fila in filas:
             id_p = fila["id_pregunta"]
-            
+
             if id_p not in preguntas:
                 preguntas[id_p] = {
                     "texto": fila["texto"],
                     "opciones": [],
                     "correcta": None
                 }
-            
+
             preguntas[id_p]["opciones"].append(fila["contenido"])
-            
+
             if fila["es_correcta"]:
                 preguntas[id_p]["correcta"] = len(preguntas[id_p]["opciones"]) - 1
-        
-        # Validar que todas las preguntas tengan respuesta correcta
+
         preguntas_validas = []
         for p_id, p_data in preguntas.items():
             if p_data["correcta"] is not None:
                 preguntas_validas.append(p_data)
             else:
                 print(f"⚠️ Advertencia: Pregunta {p_id} no tiene respuesta correcta definida")
-        
+
         print(f"✅ Preguntas válidas: {len(preguntas_validas)}")
-        
-        # Convertir a lista y mezclar aleatoriamente
+
         import random
         random.shuffle(preguntas_validas)
-        
+
         return preguntas_validas
-        
+
     except Exception as e:
         print(f"❌ Error al obtener preguntas: {e}")
         raise HTTPException(status_code=500, detail=f"Error al obtener preguntas: {str(e)}")
@@ -168,10 +153,9 @@ def obtener_preguntas(
 
 @app.get("/preguntas/{pregunta_id}")
 def obtener_pregunta_por_id(pregunta_id: int):
-    """Endpoint para obtener una pregunta específica por su ID"""
     conexion = obtener_conexion()
     cursor = conexion.cursor(dictionary=True)
-    
+
     try:
         query = """
         SELECT 
@@ -185,27 +169,27 @@ def obtener_pregunta_por_id(pregunta_id: int):
         WHERE p.id_pregunta = %s
         ORDER BY o.id_opcion;
         """
-        
+
         cursor.execute(query, (pregunta_id,))
         filas = cursor.fetchall()
-        
+
         if not filas:
             raise HTTPException(status_code=404, detail=f"Pregunta {pregunta_id} no encontrada")
-        
+
         pregunta = {
             "id": filas[0]["id_pregunta"],
             "texto": filas[0]["texto"],
             "opciones": [],
             "correcta": None
         }
-        
+
         for i, fila in enumerate(filas):
             pregunta["opciones"].append(fila["contenido"])
             if fila["es_correcta"]:
                 pregunta["correcta"] = i
-        
+
         return pregunta
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -216,14 +200,13 @@ def obtener_pregunta_por_id(pregunta_id: int):
 
 @app.get("/verificar-categoria/{categoria_id}")
 def verificar_categoria(categoria_id: int):
-    """Endpoint para verificar si una categoría tiene preguntas"""
     conexion = obtener_conexion()
     cursor = conexion.cursor()
-    
+
     try:
         cursor.execute("SELECT COUNT(*) FROM preguntas WHERE id_categoria = %s", (categoria_id,))
         count = cursor.fetchone()[0]
-        
+
         return {
             "categoria_id": categoria_id,
             "tiene_preguntas": count > 0,
@@ -232,7 +215,7 @@ def verificar_categoria(categoria_id: int):
     except Exception as e:
         return {
             "categoria_id": categoria_id,
-            "tiene_preguntas": True,  # Asumir que sí tiene
+            "tiene_preguntas": True,
             "total_preguntas": 0,
             "error": str(e)
         }
@@ -242,7 +225,6 @@ def verificar_categoria(categoria_id: int):
 
 @app.get("/health")
 def health_check():
-    """Endpoint para verificar que la API está funcionando"""
     try:
         conexion = obtener_conexion()
         cursor = conexion.cursor()
@@ -250,7 +232,7 @@ def health_check():
         cursor.fetchone()
         cursor.close()
         conexion.close()
-        
+
         return {
             "status": "ok",
             "message": "API funcionando correctamente",
@@ -263,12 +245,13 @@ def health_check():
         }
 
 if __name__ == "__main__":
+    ip = obtener_ip_local()
     print("\n" + "=" * 60)
     print("🎯 INICIANDO SERVIDOR API - QUIZ MULTIJUGADOR")
     print("=" * 60)
-    print(f"📍 IP Local del servidor: {obtener_ip_local()}")
-    print(f"🌐 API disponible en: http://{obtener_ip_local()}:8000")
-    print(f"📚 Documentación Swagger: http://{obtener_ip_local()}:8000/docs")
+    print(f"📍 IP Local del servidor: {ip}")
+    print(f"🌐 API disponible en: http://{ip}:8000")
+    print(f"📚 Documentación Swagger: http://{ip}:8000/docs")
     print("=" * 60)
     print("\n📋 Endpoints disponibles:")
     print("   GET  /categorias                - Lista todas las categorías")
@@ -278,10 +261,9 @@ if __name__ == "__main__":
     print("   GET  /verificar-categoria/{id}  - Verifica si categoría tiene preguntas")
     print("   GET  /health                    - Verifica estado de la API")
     print("=" * 60)
-    print("\n🎮 Para probar desde el navegador:")
-    print(f"   http://{obtener_ip_local()}:8000/preguntas")
-    print(f"   http://{obtener_ip_local()}:8000/preguntas?categoria=1")
+    print(f"\n⚠️  IMPORTANTE: Los clientes deben apuntar a http://{ip}:8000")
+    print("    No usar 127.0.0.1 si hay jugadores en otras máquinas")
     print("=" * 60 + "\n")
-    
+
     # host="0.0.0.0" permite conexiones remotas
     uvicorn.run(app, host="0.0.0.0", port=8000)
